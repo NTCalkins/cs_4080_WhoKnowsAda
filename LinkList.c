@@ -9,6 +9,7 @@ struct LinkList
     struct Node *tail; /* The last node in the list. Only points to an empty node if the */
     struct Node *curr; /* Current position in the list. Current element is actually curr->next. */
     unsigned int count; /* Number of nodes in the list */
+    unsigned int pos; /* Current numerical position in list */
     void (*clear)(struct LinkList*); /* Clear the contents of the list */
     void (*insert)(struct LinkList*, struct Node*); /* Insert node before node at current position */
     void (*append)(struct LinkList*, struct Node*); /* Insert node at end of list */
@@ -29,10 +30,11 @@ void LinkList_clear(struct LinkList *self)
     {
 	self->curr = self->head;
 	self->head = self->head->next;
+	deleteNode(self->curr);
 	free(self->curr);
     }
     self->head = self->tail = self->curr = makeNode();
-    self->count = 0;
+    self->count = self->pos = 0;
 }
 
 void LinkList_insert(struct LinkList *self, struct Node *it)
@@ -71,35 +73,32 @@ void LinkList_remove(struct LinkList *self)
 void LinkList_moveToStart(struct LinkList *self)
 {
     self->curr = self->head;
+    self->pos = 0;
 }
 
 void LinkList_moveToEnd(struct LinkList *self)
 {
     self->curr = self->tail;
+    self->pos = self->count;
 }
 
 void LinkList_prev(struct LinkList *self)
 {
     if (self->curr != self->head)
 	self->curr = self->curr->prev;
+    --(self->pos);
 }
 
 void LinkList_next(struct LinkList *self)
 {
     if (self->curr != self->tail)
 	self->curr = self->curr->next;
+    ++(self->pos);
 }
 
 unsigned int LinkList_currPos(struct LinkList *self)
 {
-    unsigned int pos = 0;
-    struct Node *temp = self->head;
-    while (temp != self->curr)
-    {
-	temp = temp->next;
-	++pos;
-    }
-    return pos;
+    return self->pos;
 }
 
 void LinkList_move(struct LinkList *self, unsigned int pos)
@@ -126,6 +125,7 @@ struct LinkList makeList()
     struct LinkList result;
     result.head = result.tail = result.curr = makeNode();
     result.count = 0;
+    result.pos = 0;
     result.clear = LinkList_clear;
     result.insert = LinkList_insert;
     result.append = LinkList_append;
