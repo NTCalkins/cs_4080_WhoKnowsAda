@@ -9,6 +9,7 @@ struct Node
     struct Node *next;
     void (*copy)(struct Node*, char*);
     void (*append)(struct Node*, char*);
+    char* (*get)(struct Node*); /* Return pointer to c-string */
 };
 
 void Node_copy(struct Node *self, char *s)
@@ -21,6 +22,11 @@ void Node_append(struct Node *self, char *s)
     self->string.append(&(self->string), s);
 }
 
+char* Node_get(struct Node *self)
+{
+    return self->string.string;
+}
+
 struct Node* makeNode()
 {
     struct Node *result = malloc(sizeof(struct Node));
@@ -29,6 +35,7 @@ struct Node* makeNode()
     result->next = NULL;
     result->copy = Node_copy;
     result->append = Node_append;
+    result->get = Node_get;
     return result;
 }
 
