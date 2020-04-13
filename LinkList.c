@@ -21,7 +21,6 @@ struct LinkList
     unsigned int (*currPos)(struct LinkList*); /* Return position of current element */
     void (*move)(struct LinkList*, unsigned int); /* Move to specified position */
     unsigned int (*size)(struct LinkList*); /* Return current size of the list */
-    struct Node* (*getCurr)(struct LinkList*); /* Return pointer to current node (curr->next) */
 };
 
 void LinkList_clear(struct LinkList *self)
@@ -103,21 +102,17 @@ unsigned int LinkList_currPos(struct LinkList *self)
 
 void LinkList_move(struct LinkList *self, unsigned int pos)
 {
-    if (pos < 0 || pos >= self->count)
+    if (pos < 0 || pos > self->count)
 	return;
     self->curr = self->head;
     for (unsigned int i = 0; i < pos; ++i)
 	self->curr = self->curr->next;
+    self->pos = pos;
 }
 
 inline unsigned int LinkList_size(struct LinkList *self)
 {
     return self->count;
-}
-
-inline struct Node* LinkList_getCurr(struct LinkList *self)
-{
-    return self->curr->next;
 }
 
 struct LinkList makeList()
@@ -137,7 +132,6 @@ struct LinkList makeList()
     result.currPos = LinkList_currPos;
     result.move = LinkList_move;
     result.size = LinkList_size;
-    result.getCurr = LinkList_getCurr;
     return result;
 }
 
