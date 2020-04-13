@@ -1,16 +1,16 @@
 /* Double linked list implementation */
 #pragma once
-#include "StaticLinkNode.c"
-// #include "DynamicLinkNode.c"
+#include "StaticLinkNode.c" /* Use static length strings in node */
+// #include "DynamicLinkNode.c" /* Use dynamic length strings in node */
 
 struct LinkList
 {
-    struct Node *head;
-    struct Node *tail;
+    struct Node *head; /* The start of the list. Note that this is an empty node and the first non-empty element of the list is head->next */
+    struct Node *tail; /* The last node in the list. Only points to an empty node if the */
     struct Node *curr; /* Current position in the list. Current element is actually curr->next. */
     unsigned int count; /* Number of nodes in the list */
     void (*clear)(struct LinkList*); /* Clear the contents of the list */
-    void (*insert)(struct LinkList*, struct Node*); /* Insert node after node at current position */
+    void (*insert)(struct LinkList*, struct Node*); /* Insert node before node at current position */
     void (*append)(struct LinkList*, struct Node*); /* Insert node at end of list */
     void (*remove)(struct LinkList*); /* Remove the current node */
     void (*moveToStart)(struct LinkList*); /* Move current position to head */
