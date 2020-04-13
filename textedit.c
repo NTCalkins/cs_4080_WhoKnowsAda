@@ -10,11 +10,68 @@
 #define INVALID_CMD '?' /* Value to indicate invalid command */
 
 struct TextBuffer
-{ /* TODO: Finish implementing this */
+{
+    /* Data */
     struct LinkList text; /* The text content of the buffer */
     unsigned int currAddr; /* Address used as the default argument for some commands when none is specified */
     unsigned int (*size)(struct TextBuffer*); /* Return the number of lines in the buffer */
+    /* Functions */
+    /* IMPORTANT: Reference documentation for details on how currAddr is affected by each of these commands */
+    void (*append)(unsigned int, struct LinkList*); /* Append buffer of text after input line */
+    void (*change)(unsigned int, unsigned int, struct LinkList*); /* Delete input range and replace with buffer of text */
+    void (*join)(unsigned int, unsigned int); /* Replace input range with their concatenation */
+    void (*move)(unsigned int, unsigned int, unsigned int); /* Move input range to specified position */
+    void (*list)(unsigned int, unsigned int); /* Print out input range */
+    void (*number)(unsigned int, unsigned int); /* Print out input range with line numbers */
+    void (*transfer)(unsigned int, unsigned int, unsigned int); /* Copy input range and insert at specified position */
+    void (*write)(char*); /* Write current buffer to file */
+    void (*edit)(char*); /* Load contents of a file */
 };
+/* TODO: Implement member functions*/
+void TextBuffer_append(unsigned int line, struct LinkList *buff)
+{
+    
+}
+
+void TextBuffer_change(unsigned int line1, unsigned int line2, struct LinkList *buff)
+{
+    
+}
+
+void TextBuffer_join(unsigned int line1, unsigned int line2)
+{
+    
+}
+
+void TextBuffer_move(unsigned int line1, unsigned int line2, unsigned int line3)
+{
+    
+}
+
+void TextBuffer_list(unsigned int line1, unsigned int line2)
+{
+    
+}
+
+void TextBuffer_number(unsigned int line1, unsigned int line2)
+{
+    
+}
+
+void TextBuffer_transfer(unsigned int line1, unsigned int line2, unsigned int line3)
+{
+    
+}
+
+void TextBuffer_write(char *file)
+{
+    
+}
+
+void TextBuffer_edit(char *file)
+{
+    
+}
 
 int main(int argc, char **argv)
 {
@@ -112,7 +169,7 @@ unsigned int interpretSpecial(struct TextBuffer *buff, char *s, unsigned int *of
 
 void parse(struct TextBuffer *buff, char *input, int *addr1, int *addr2, char *command, char *param)
 /* Parse the user inputted line */
-{ /* TODO: Test this */
+{ /* TODO: Needs testing */
     unsigned int pos = 0;
     unsigned int temp = 0;
     const unsigned int inputLength = strlen(input);
