@@ -12,63 +12,92 @@
 struct TextBuffer
 {
     /* Data */
+    /* NOTE: Line numbers count from 1 */
     struct LinkList text; /* The text content of the buffer */
     unsigned int currAddr; /* Address used as the default argument for some commands when none is specified */
     unsigned int (*size)(struct TextBuffer*); /* Return the number of lines in the buffer */
     /* Functions */
     /* IMPORTANT: Reference documentation for details on how currAddr is affected by each of these commands */
-    void (*append)(unsigned int, struct LinkList*); /* Append buffer of text after input line */
-    void (*change)(unsigned int, unsigned int, struct LinkList*); /* Delete input range and replace with buffer of text */
-    void (*join)(unsigned int, unsigned int); /* Replace input range with their concatenation */
-    void (*move)(unsigned int, unsigned int, unsigned int); /* Move input range to specified position */
-    void (*list)(unsigned int, unsigned int); /* Print out input range */
-    void (*number)(unsigned int, unsigned int); /* Print out input range with line numbers */
-    void (*transfer)(unsigned int, unsigned int, unsigned int); /* Copy input range and insert at specified position */
-    void (*write)(char*); /* Write current buffer to file */
-    void (*edit)(char*); /* Load contents of a file */
+    void (*append)(struct TextBuffer*, unsigned int, struct LinkList*); /* Append buffer of text after input line */
+    void (*change)(struct TextBuffer*, unsigned int, unsigned int, struct LinkList*); /* Delete input range and replace with buffer of text */
+    void (*delete)(struct TextBuffer*, unsigned int, unsigned int); /* Delete input range */
+    void (*join)(struct TextBuffer*, unsigned int, unsigned int); /* Replace input range with their concatenation */
+    void (*move)(struct TextBuffer*, unsigned int, unsigned int, unsigned int); /* Move input range to specified position */
+    void (*list)(struct TextBuffer*, unsigned int, unsigned int); /* Print out input range */
+    void (*number)(struct TextBuffer*, unsigned int, unsigned int); /* Print out input range with line numbers */
+    void (*transfer)(struct TextBuffer*, unsigned int, unsigned int, unsigned int); /* Copy input range and insert at specified position */
+    void (*write)(struct TextBuffer*, char*); /* Write current buffer to file */
+    void (*edit)(struct TextBuffer*, char*); /* Load contents of a file */
 };
 /* TODO: Implement member functions*/
-void TextBuffer_append(unsigned int line, struct LinkList *buff)
+void TextBuffer_append(struct TextBuffer *self, unsigned int line, struct LinkList *buff) /* Current address is set to last line entered */
 {
     
 }
 
-void TextBuffer_change(unsigned int line1, unsigned int line2, struct LinkList *buff)
+void TextBuffer_change(struct TextBuffer *self, unsigned int line1, unsigned int line2, struct LinkList *buff) /* Current address set to last line entered or, if none, line after last deleted */
 {
     
 }
 
-void TextBuffer_join(unsigned int line1, unsigned int line2)
+void TextBuffer_delete(struct TextBuffer *self, unsigned int line1, unsigned int line2) /* Current address is set to after last line deleted */
 {
     
 }
 
-void TextBuffer_move(unsigned int line1, unsigned int line2, unsigned int line3)
+void TextBuffer_join(struct TextBuffer *self, unsigned int line1, unsigned int line2) /* Current address is set to the joined line */
 {
     
 }
 
-void TextBuffer_list(unsigned int line1, unsigned int line2)
+void TextBuffer_move(struct TextBuffer *self, unsigned int line1, unsigned int line2, unsigned int line3) /* Current address is set to new address of last line moved */
+{
+
+}
+
+void TextBuffer_list(struct TextBuffer *self, unsigned int line1, unsigned int line2) /* Current address is set to last line printed */
+{
+    assert(line2 >= line1 && line1 > 0 && line1 < self->text.count);
+    if (self->text.pos != (line1 - 1))
+	self->text.move(&(self->text), line1 - 1);
+    self->currAddr = line1 - 1;
+    for (unsigned int i = line1; i <= line2; ++i)
+    {
+	++(self->currAddr); /* Set current address to current line */
+	struct Node *temp = self->text.getCurr(&(self->text)); /* Get the relevant node */
+	puts(temp->get(temp)); /* Print string contents of node */
+	self->text.next(&(self->text)); /* Advance position of buffer */
+    }
+    self->text.prev(&(self->text)); /* Shift current position in link list back to last node printed */    
+}
+
+void TextBuffer_number(struct TextBuffer *self, unsigned int line1, unsigned int line2) /* Current address is set to last line printed */
+{
+    assert(line2 >= line1 && line1 > 0 && line1 < self->text.count);
+    if (self->text.pos != (line1 - 1))
+	self->text.move(&(self->text), line1 - 1);
+    self->currAddr = line1 - 1;
+    for (unsigned int i = line1; i <= line2; ++i)
+    {
+	++(self->currAddr); /* Set current address to current line */
+	struct Node *temp = self->text.getCurr(&(self->text)); /* Get the relevant node */
+	printf("%d\t%s", i, temp->get(temp)); /* Print line number and string contents of node */
+	self->text.next(&(self->text)); /* Advance position of buffer */
+    }
+    self->text.prev(&(self->text)); /* Shift current position in link list back to last node printed */
+}
+
+void TextBuffer_transfer(struct TextBuffer *self, unsigned int line1, unsigned int line2, unsigned int line3) /* Current address is set to last line copied */
 {
     
 }
 
-void TextBuffer_number(unsigned int line1, unsigned int line2)
+void TextBuffer_write(struct TextBuffer *self, char *file) /* Current address is unchanged */
 {
     
 }
 
-void TextBuffer_transfer(unsigned int line1, unsigned int line2, unsigned int line3)
-{
-    
-}
-
-void TextBuffer_write(char *file)
-{
-    
-}
-
-void TextBuffer_edit(char *file)
+void TextBuffer_edit(struct TextBuffer *self, char *file) /* Current address is set to last line in buffer */
 {
     
 }
