@@ -234,6 +234,7 @@ void TextBuffer_write(struct TextBuffer *self, char *file) /* Current address is
 	fputs(temp->next->get(temp->next), outFile);
 	temp = temp->next;
     }
+    fclose(outFile);
     self->changesMade = false;
 }
 
@@ -254,6 +255,7 @@ void TextBuffer_edit(struct TextBuffer *self, char *file) /* Current address is 
 	    self->text.insert(&(self->text), temp);
 	    self->text.next(&(self->text));
 	}
+	fclose(inFile);
 	self->changesMade = false;
     }
 }
