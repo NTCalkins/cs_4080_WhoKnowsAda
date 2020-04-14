@@ -25,7 +25,8 @@ struct TextBuffer
     void (*change)(struct TextBuffer*, unsigned int, unsigned int, struct LinkList*); /* Delete input range and replace with buffer of text */
     void (*join)(struct TextBuffer*, unsigned int, unsigned int); /* Replace input range with their concatenation */
     void (*move)(struct TextBuffer*, unsigned int, unsigned int, unsigned int); /* Move input range to specified position */
-    void (*list)(struct TextBuffer*, unsigned int, unsigned int); /* Print out input range */
+    void (*print)(struct TextBuffer*, unsigned int, unsigned int); /* Print out input range */
+    void (*list)(struct TextBuffer*, unsigned int, unsigned int); /* Print input range unambiguously */
     void (*number)(struct TextBuffer*, unsigned int, unsigned int); /* Print out input range with line numbers */
     void (*transfer)(struct TextBuffer*, unsigned int, unsigned int, unsigned int); /* Copy input range and insert at specified position */
     void (*write)(struct TextBuffer*, char*); /* Write current buffer to file */
@@ -45,11 +46,11 @@ unsigned int TextBuffer_size(struct TextBuffer *self)
 void TextBuffer_append(struct TextBuffer *self, unsigned int line, struct LinkList *buff) /* Current address is set to last line entered */
 {
     assert(line > 0 && line <= self->text.count);
-    if (buff->count == 0)
-	return;
     /* Move position in buffer for insertion after input line */
     if (self->text.pos != line)
 	self->text.move(&(self->text), line);
+    if (buff->count == 0) /* Do nothing if input is empty */
+	return;
     /* Insert contents of buff in between curr and curr->next */
     if (self->text.curr->next != NULL)
 	self->text.curr->next->prev = buff->tail;
@@ -144,7 +145,6 @@ void TextBuffer_join(struct TextBuffer *self, unsigned int line1, unsigned int l
 void TextBuffer_move(struct TextBuffer *self, unsigned int line1, unsigned int line2, unsigned int line3) /* Current address is set to new address of last line moved */
 {
     assert(line2 >= line1 && line1 > 0 && line1 <= self->text.count && line3 <= self->text.count);
-    unsigned int moveSize = line2 - line1 + 1;
     struct Node *pos1, *pos2, *temp;
     if (self->text.pos != line1)
 	self->text.move(&(self->text), line1);
@@ -171,18 +171,61 @@ void TextBuffer_move(struct TextBuffer *self, unsigned int line1, unsigned int l
     self->changesMade = true;
 }
 
-void TextBuffer_list(struct TextBuffer *self, unsigned int line1, unsigned int line2) /* Current address is set to last line printed */
+void TextBuffer_print(struct TextBuffer *self, unsigned int line1, unsigned int line2) /* Current address is set to last line printed */
 {
     assert(line2 >= line1 && line1 > 0 && line1 <= self->text.count);
     if (self->text.pos != (line1 - 1))
 	self->text.move(&(self->text), line1 - 1);
     for (unsigned int i = line1; i <= line2; ++i)
     {
-	struct Node *temp = self->text.curr->next; /* Get the relevant node */
-	puts(temp->get(temp)); /* Print string contents of node */
+	puts(self->text.curr->next->get(self->text.curr->next)); /* Print string contents of node */
 	self->text.next(&(self->text)); /* Advance position of buffer */
     }
-    self->changesMade = true;
+}
+
+void TextBuffer_list(struct TextBuffer *self, unsigned int line1, unsigned int line2) /* Current address is set to last line printed */
+{
+    assert(line2 >= line1 && line1 > 0 && line1 <= self->text.count);
+    char *string;
+    unsigned int i;
+    if (self->text.pos != (line1 - 1))
+	self->text.move(&(self->text), line1 - 1);
+    for (unsigned int j = line1; j <= line2; ++j)
+    {
+	string = self->text.curr->next->get(self->text.curr->next);
+	i = 0;
+	while (string[i] != '\0') /* Disambiguate special chracters */
+	{
+	    switch (string[i])
+	    {
+	    case '$':
+		fputs("\\$", stdout);
+		break;
+	    case '\v':
+		fputs("\\v", stdout);
+		break;
+	    case '\t':
+		fputs("\\t", stdout);
+		break;
+	    case '\\':
+		fputs("\\\\", stdout);
+		break;
+	    case '\'':
+		fputs("\\'", stdout);
+		break;
+	    case '\"':
+		fputs("\\\"", stdout);
+		break;
+	    case '\?':
+		fputs("\\?", stdout);
+		break;
+	    default:
+		putchar(string[i]);
+	    }
+	    ++i;
+	}
+	puts("$");
+    }
 }
 
 void TextBuffer_number(struct TextBuffer *self, unsigned int line1, unsigned int line2) /* Current address is set to last line printed */
@@ -192,11 +235,9 @@ void TextBuffer_number(struct TextBuffer *self, unsigned int line1, unsigned int
 	self->text.move(&(self->text), line1 - 1);
     for (unsigned int i = line1; i <= line2; ++i)
     {
-	struct Node *temp = self->text.curr->next; /* Get the relevant node */
-	printf("%d\t%s", i, temp->get(temp)); /* Print line number and string contents of node */
-	self->text.next(&(self->text)); /* Advance position of buffer */
+	printf("%d\t%s", i, self->text.curr->next->get(self->text.curr->next));
+	self->text.next(&(self->text));
     }
-    self->changesMade = true;
 }
 
 void TextBuffer_transfer(struct TextBuffer *self, unsigned int line1, unsigned int line2, unsigned int line3) /* Current address is set to last line copied */
@@ -250,6 +291,8 @@ void TextBuffer_edit(struct TextBuffer *self, char *file) /* Current address is 
 	self->text.clear(&(self->text)); /* Clear current text buffer */
 	while (fgets(input, BUFF_LEN, inFile)) /* Read every line in file into buffer */
 	{
+	    if (input[strlen(input) - 1] == '\n') /* Get rid of new line character at end */
+		input[strlen(input) - 1] = '\0';
 	    temp = makeNode();
 	    temp->copy(temp, input);
 	    self->text.insert(&(self->text), temp);
@@ -272,6 +315,7 @@ struct TextBuffer makeBuffer() /* Construct and initialize a TextBuffer struct *
     result.change = TextBuffer_change;
     result.join = TextBuffer_join;
     result.move = TextBuffer_move;
+    result.print = TextBuffer_print;
     result.list = TextBuffer_list;
     result.number = TextBuffer_number;
     result.transfer = TextBuffer_transfer;
@@ -283,12 +327,6 @@ struct TextBuffer makeBuffer() /* Construct and initialize a TextBuffer struct *
 void deleteBuffer(struct TextBuffer *it) /* Clean up a TextBuffer struct */
 {
     deleteList(&(it->text));
-}
-
-int main(int argc, char **argv) /* TODO: Implement main driver */
-{
-    puts("Success!\n");
-    return 0;
 }
 
 bool isCommand(char c)
@@ -341,14 +379,14 @@ unsigned int interpretSpecial(struct TextBuffer *buff, char *s, unsigned int *of
     {
     case '.':
 	*offset = 1;
-	return buff->currAddr;
+	return buff->currAddr(buff);
     case '$':
 	*offset = 1;
 	return buff->size(buff);
     case '+':
 	if (isdigit(s[1]))
 	{
-	    retVal = buff->currAddr + atoi(s + 1);
+	    retVal = buff->currAddr(buff) + atoi(s + 1);
 	    *offset = 2;
 	    while (isdigit(s[*offset]))
 		++offset;
@@ -357,12 +395,12 @@ unsigned int interpretSpecial(struct TextBuffer *buff, char *s, unsigned int *of
 	else
 	{
 	    *offset = 1;
-	    return buff->currAddr + 1;
+	    return buff->currAddr(buff) + 1;
 	}
     case '-':
 	if (isdigit(s[1]))
 	{
-	    retVal = buff->currAddr - atoi(s + 1);
+	    retVal = buff->currAddr(buff) - atoi(s + 1);
 	    *offset = 2;
 	    while (isdigit(s[*offset]))
 		++offset;
@@ -371,7 +409,7 @@ unsigned int interpretSpecial(struct TextBuffer *buff, char *s, unsigned int *of
 	else
 	{
 	    *offset = 1;
-	    return buff->currAddr - 1;
+	    return buff->currAddr(buff) - 1;
 	}
     default:
 	*offset = 0;
@@ -466,7 +504,7 @@ void parse(struct TextBuffer *buff, char *input, int *addr1, int *addr2, char *c
 	}
 	else if (input[pos] == ';') /* Current through specified or last line of the buffer */
 	{
-	    *addr1 = buff->currAddr;
+	    *addr1 = buff->currAddr(buff);
 	    ++pos;
 	    if (isdigit(input[pos]))
 	    {
@@ -498,4 +536,69 @@ void parse(struct TextBuffer *buff, char *input, int *addr1, int *addr2, char *c
 	    ++pos;
 	}
     }
+}
+
+int main(int argc, char **argv) /* TODO: Implement main driver */
+{
+    bool done = false;
+    char input[BUFF_LEN]; /* Line input from user */
+    char command; /* Command argument */
+    int addr1, addr2; /* Line address arguments */
+    char param[BUFF_LEN]; /* Prameter argument */
+    struct TextBuffer textBuff = makeBuffer(); /* Buffer of text for the document */
+    struct LinkList inputBuff = makeList(); /* Buffer of input lines for input mode */
+    while (!done)
+    {
+	fgets(input, sizeof(input), stdin);
+	parse(&textBuff, input, &addr1, &addr2, &command, param);
+	switch (command)
+	{
+	case 'a': /* Enter input mode and insert after addressed line */
+	    
+	    break;
+	case 'i': /* Enter input mode and insert before addressed line */
+	    
+	    break;
+	case 'c': /* Enter input mode and change out addressed lines with input buffer */
+	    
+	    break;
+	case 'd': /* Delete addressed lines from buffer */
+	    
+	    break;
+	case 'j': /* Replace addressed lines with their concatenation */
+	    
+	    break;
+	case 'p': /* Print out addressed lines */
+	    
+	    break;
+	case 'n': /* Print and number addressed lines */
+	    
+	    break;
+	case 't': /* Copies addressed lines to after the destination address */
+	    
+	    break;
+	case 'w': /* Write to file */
+	    
+	    break;
+	case 'e': /* Load contents from file */
+	    
+	    break;
+	case 'q': /* Quit */
+	    if (textBuff.changesMade)
+	    {
+		input[0] = '\0';
+		while (strcmp(input, "yes\n") != 0 && strcmp(input, "no\n") != 0)
+		{
+		    printf("Unsaved changes in buffer. Still quit? (yes/no): ");
+		    fgets(input, sizeof(input), stdin);
+		}
+		if (strcmp(input, "yes\n") == 0)
+		    done = true;
+	    }
+	    break;
+	default:
+	    puts("Error: Unknown command.");
+	}
+    }
+    return 0;
 }
