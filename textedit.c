@@ -13,6 +13,7 @@ struct TextBuffer
 {
     /* Data */
     struct LinkList text; /* The text content of the buffer */
+    bool changesMade; /* Changes made since last write to file */
     unsigned int (*currAddr)(struct TextBuffer*); /* Address used as the default argument for some commands when none is specified */
     unsigned int (*size)(struct TextBuffer*); /* Return the number of lines in the buffer */
     /* Functions */
@@ -28,7 +29,7 @@ struct TextBuffer
     void (*write)(struct TextBuffer*, char*); /* Write current buffer to file */
     void (*edit)(struct TextBuffer*, char*); /* Load contents of a file */
 };
-/* TODO: Implement member functions*/
+/* TODO: Finish implementing member functions*/
 unsigned int TextBuffer_currAddr(struct TextBuffer *self)
 {
     return self->text.pos;
@@ -63,17 +64,21 @@ void TextBuffer_delete(struct TextBuffer *self, unsigned int line1, unsigned int
 {
     assert(line2 >= line1 && line1 > 0 && line1 <= self->text.count);
     struct Node *pos1, *pos2; /* Positions for deletion */
+    unsigned int temp;
     if (self->text.pos != (line1 - 1))
 	self->text.move(&(self->text), line1 - 1);
+    temp = self->text.pos;
     /* Get positions for deletion */
     pos1 = self->text.curr;
     self->text.move(&(self->text), line2);
     pos2 = self->text.curr->next;
     /* Delete nodes between pos1 and pos2 */
     self->text.curr = pos1;
+    self->text.pos = temp;
     while (self->text.curr->next != pos2)
 	self->text.remove(&(self->text));
     self->text.next(&self->text); /* Set current address to after deleted text */
+    self->changesMade = true;
 }
 
 void TextBuffer_change(struct TextBuffer *self, unsigned int line1, unsigned int line2, struct LinkList *buff) /* Current address set to last line entered or, if none, line after last deleted */
@@ -108,18 +113,59 @@ void TextBuffer_change(struct TextBuffer *self, unsigned int line1, unsigned int
 	self->text.move(&(self->text), line1 + buff->count); /* Move current address to last line added */
 	buff->clear(buff); /* Delete old nodes and reinitialize input buffer */
     }
+    self->changesMade = true;
 }
 
 void TextBuffer_join(struct TextBuffer *self, unsigned int line1, unsigned int line2) /* Current address is set to the joined line */
 {
     assert(line2 >= line1 && line1 > 0 && line1 <= self->text.count);
-    
+    struct Node *pos1, *pos2;
+    unsigned int temp;
+    if (self->text.pos != line1)
+	self->text.move(&(self->text), line1);
+    /* Get positions for range to be merged */
+    temp = self->text.pos;
+    pos1 = self->text.curr;
+    self->text.move(&(self->text), line2);
+    pos2 = self->text.curr->next;
+    self->text.curr = pos1;
+    self->text.pos = temp;
+    while (self->text.curr->next != pos2) /* Append and remove each node in range */
+    {
+	self->text.curr->append(self->text.curr, self->text.curr->next->get(self->text.curr->next));
+	self->text.remove(&(self->text));
+    }
+    self->changesMade = true;
 }
 
 void TextBuffer_move(struct TextBuffer *self, unsigned int line1, unsigned int line2, unsigned int line3) /* Current address is set to new address of last line moved */
 {
     assert(line2 >= line1 && line1 > 0 && line1 <= self->text.count && line3 <= self->text.count);
-
+    unsigned int moveSize = line2 - line1 + 1;
+    struct Node *pos1, *pos2, *temp;
+    if (self->text.pos != line1)
+	self->text.move(&(self->text), line1);
+    pos1 = self->text.curr;
+    self->text.move(&(self->text), line2);
+    pos2 = self->text.curr;
+    self->text.move(&(self->text), line3);
+    /* Detach nodes from list */
+    pos1->prev->next = pos2->next;
+    pos2->next->prev = pos1->prev;
+    /* Attach nodes after line3 */
+    temp = self->text.curr->next;
+    self->text.curr->next = pos1;
+    pos1->prev = self->text.curr;
+    pos2->next = temp;
+    temp->prev = pos2;
+    /* Move position to new position of last line moved */
+    temp = self->text.curr;
+    self->text.moveToStart(&(self->text));
+    while (self->text.curr != temp)
+	self->text.next(&(self->text));
+    while (self->text.curr != pos2)
+	self->text.next(&(self->text));
+    self->changesMade = true;
 }
 
 void TextBuffer_list(struct TextBuffer *self, unsigned int line1, unsigned int line2) /* Current address is set to last line printed */
@@ -133,6 +179,7 @@ void TextBuffer_list(struct TextBuffer *self, unsigned int line1, unsigned int l
 	puts(temp->get(temp)); /* Print string contents of node */
 	self->text.next(&(self->text)); /* Advance position of buffer */
     }
+    self->changesMade = true;
 }
 
 void TextBuffer_number(struct TextBuffer *self, unsigned int line1, unsigned int line2) /* Current address is set to last line printed */
@@ -146,20 +193,34 @@ void TextBuffer_number(struct TextBuffer *self, unsigned int line1, unsigned int
 	printf("%d\t%s", i, temp->get(temp)); /* Print line number and string contents of node */
 	self->text.next(&(self->text)); /* Advance position of buffer */
     }
+    self->changesMade = true;
 }
 
 void TextBuffer_transfer(struct TextBuffer *self, unsigned int line1, unsigned int line2, unsigned int line3) /* Current address is set to last line copied */
 {
     assert(line2 >= line1 && line1 > 0 && line1 <= self->text.count && line3 <= self->text.count);
     
+    self->changesMade = true;
 }
 
 void TextBuffer_write(struct TextBuffer *self, char *file) /* Current address is unchanged */
 {
-    
+
+    self->changesMade = false;
 }
 
 void TextBuffer_edit(struct TextBuffer *self, char *file) /* Current address is set to last line in buffer */
+{
+
+    self->changesMade = false;
+}
+
+struct TextBuffer* makeBuffer() /* Construct and initialize a TextBuffer struct */
+{
+    
+}
+
+void deleteBuffer(struct TextBuffer *it) /* Clean up a TextBuffer struct */
 {
     
 }
