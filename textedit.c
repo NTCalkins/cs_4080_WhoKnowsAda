@@ -8,6 +8,8 @@
 
 #define INVALID_ADDR -1 /* Value to indicate invalid address */
 #define INVALID_CMD '?' /* Value to indicate invalid command */
+#define BUFF_LEN 256 /* Maximum length of c-string buffer for I/O */
+#define DEFAULT_FILE "out.txt" /* Default file name */
 
 struct TextBuffer
 {
@@ -29,7 +31,7 @@ struct TextBuffer
     void (*write)(struct TextBuffer*, char*); /* Write current buffer to file */
     void (*edit)(struct TextBuffer*, char*); /* Load contents of a file */
 };
-/* TODO: Finish implementing member functions*/
+
 unsigned int TextBuffer_currAddr(struct TextBuffer *self)
 {
     return self->text.pos;
@@ -58,6 +60,7 @@ void TextBuffer_append(struct TextBuffer *self, unsigned int line, struct LinkLi
     /* Reinitialize buff */
     buff->tail = buff->curr = buff->head;
     buff->count = 0;
+    buff->pos = 0;
 }
 
 void TextBuffer_delete(struct TextBuffer *self, unsigned int line1, unsigned int line2) /* Current address is set to after last line deleted */
@@ -199,33 +202,88 @@ void TextBuffer_number(struct TextBuffer *self, unsigned int line1, unsigned int
 void TextBuffer_transfer(struct TextBuffer *self, unsigned int line1, unsigned int line2, unsigned int line3) /* Current address is set to last line copied */
 {
     assert(line2 >= line1 && line1 > 0 && line1 <= self->text.count && line3 <= self->text.count);
-    
+    unsigned int transSize = line2 - line1 + 1;
+    struct Node *pos1, *pos2;
+    struct Node *ins;
+    if (self->text.pos != line1)
+	self->text.move(&(self->text), line1);
+    pos1 = self->text.curr;
+    self->text.move(&(self->text), line2);
+    pos2 = self->text.curr;
+    self->text.move(&(self->text), line3);
+    /* Insert lines in range after line3 */
+    while (pos2 != pos1->prev)
+    {
+	ins = makeNode();
+	ins->copy(ins, pos2->get(pos2));
+	self->text.insert(&(self->text), ins);
+	pos2 = pos2->prev;
+    }
+    /* Update position */
+    for (unsigned int i = 0; i < transSize; ++i)
+	self->text.next(&(self->text));
     self->changesMade = true;
 }
 
 void TextBuffer_write(struct TextBuffer *self, char *file) /* Current address is unchanged */
 {
-
+    FILE *outFile = fopen(file, "w");
+    struct Node *temp = self->text.head;
+    while (temp != self->text.tail) /* Write every line to out file*/
+    {
+	fputs(temp->next->get(temp->next), outFile);
+	temp = temp->next;
+    }
     self->changesMade = false;
 }
 
 void TextBuffer_edit(struct TextBuffer *self, char *file) /* Current address is set to last line in buffer */
 {
-
-    self->changesMade = false;
+    FILE *inFile = fopen(file, "r");
+    struct Node *temp;
+    if (inFile == NULL)
+	puts("Error: File not found.");
+    else
+    {
+	char input[BUFF_LEN];
+	self->text.clear(&(self->text)); /* Clear current text buffer */
+	while (fgets(input, BUFF_LEN, inFile)) /* Read every line in file into buffer */
+	{
+	    temp = makeNode();
+	    temp->copy(temp, input);
+	    self->text.insert(&(self->text), temp);
+	    self->text.next(&(self->text));
+	}
+	self->changesMade = false;
+    }
 }
 
-struct TextBuffer* makeBuffer() /* Construct and initialize a TextBuffer struct */
+struct TextBuffer makeBuffer() /* Construct and initialize a TextBuffer struct */
 {
-    
+    struct TextBuffer result;
+    result.text = makeList();
+    result.changesMade = false;
+    result.currAddr = TextBuffer_currAddr;
+    result.size = TextBuffer_size;
+    result.append = TextBuffer_append;
+    result.delete = TextBuffer_delete;
+    result.change = TextBuffer_change;
+    result.join = TextBuffer_join;
+    result.move = TextBuffer_move;
+    result.list = TextBuffer_list;
+    result.number = TextBuffer_number;
+    result.transfer = TextBuffer_transfer;
+    result.write = TextBuffer_write;
+    result.edit = TextBuffer_edit;
+    return result;
 }
 
 void deleteBuffer(struct TextBuffer *it) /* Clean up a TextBuffer struct */
 {
-    
+    deleteList(&(it->text));
 }
 
-int main(int argc, char **argv)
+int main(int argc, char **argv) /* TODO: Implement main driver */
 {
     puts("Success!\n");
     return 0;
