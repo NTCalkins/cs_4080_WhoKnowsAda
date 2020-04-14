@@ -13,7 +13,7 @@ struct LinkList
     void (*clear)(struct LinkList*); /* Clear the contents of the list */
     void (*insert)(struct LinkList*, struct Node*); /* Insert node before node at current position */
     void (*append)(struct LinkList*, struct Node*); /* Insert node at end of list */
-    void (*remove)(struct LinkList*); /* Remove the current node */
+    void (*remove)(struct LinkList*); /* Remove the curr->next */
     void (*moveToStart)(struct LinkList*); /* Move current position to head */
     void (*moveToEnd)(struct LinkList*); /* Move current position to tail */
     void (*prev)(struct LinkList*); /* Shift current position one left */
