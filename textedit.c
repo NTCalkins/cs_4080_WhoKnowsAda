@@ -538,6 +538,20 @@ void parse(struct TextBuffer *buff, char *input, int *addr1, int *addr2, char *c
     }
 }
 
+void inputMode(char *input, LinkList *buff) /* Enter input mode */
+{
+    struct Node *temp;
+    while (strcmp(fgets(input, sizeof(input), stdin), ".\n") != 0)
+    {
+	/* Append inputed lines to input buffer */
+	if (input[strlen(input) - 1] == '\n')
+	    input[strlen(input) - 1] = '\0';
+	temp = makeNode();
+	temp->copy(temp, input);
+	buff->append(buff, temp);
+    }
+}
+
 int main(int argc, char **argv) /* TODO: Implement main driver */
 {
     bool done = false;
@@ -545,7 +559,7 @@ int main(int argc, char **argv) /* TODO: Implement main driver */
     char command; /* Command argument */
     int addr1, addr2; /* Line address arguments */
     char param[BUFF_LEN]; /* Prameter argument */
-    struct TextBuffer textBuff = makeBuffer(); /* Buffer of text for the document */
+     struct TextBuffer textBuff = makeBuffer(); /* Buffer of text for the document */
     struct LinkList inputBuff = makeList(); /* Buffer of input lines for input mode */
     while (!done)
     {
@@ -570,6 +584,9 @@ int main(int argc, char **argv) /* TODO: Implement main driver */
 	    break;
 	case 'p': /* Print out addressed lines */
 	    
+	    break;
+	case 'l': /* Print out addressed lines unambiguously */
+
 	    break;
 	case 'n': /* Print and number addressed lines */
 	    
