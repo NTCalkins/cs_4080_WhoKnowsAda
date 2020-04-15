@@ -29,7 +29,7 @@ struct TextBuffer
     void (*list)(struct TextBuffer*, unsigned int, unsigned int); /* Print input range unambiguously */
     void (*number)(struct TextBuffer*, unsigned int, unsigned int); /* Print out input range with line numbers */
     void (*transfer)(struct TextBuffer*, unsigned int, unsigned int, unsigned int); /* Copy input range and insert at specified position */
-    void (*write)(struct TextBuffer*, char*); /* Write current buffer to file */
+    void (*write)(struct TextBuffer*, unsigned int, unsigned int, char*); /* Write current buffer to file */
     void (*edit)(struct TextBuffer*, char*); /* Load contents of a file */
 };
 
@@ -150,6 +150,7 @@ void TextBuffer_join(struct TextBuffer *self, unsigned int line1, unsigned int l
 void TextBuffer_move(struct TextBuffer *self, unsigned int line1, unsigned int line2, unsigned int line3) /* Current address is set to new address of last line moved */
 {
     assert(line2 >= line1 && line1 > 0 && line2 <= self->text.count && line3 <= self->text.count);
+    assert(line3 <= line1 && line3 >= line2);
     struct Node *pos1, *pos2, *temp;
     if (self->text.pos != line1)
 	self->text.move(&(self->text), line1);
@@ -160,9 +161,12 @@ void TextBuffer_move(struct TextBuffer *self, unsigned int line1, unsigned int l
     self->text.move(&(self->text), line3);
     /* Detach nodes from list */
     pos1->prev->next = pos2->next;
-    pos2->next->prev = pos1->prev;
+    if (pos2->next != NULL)
+	pos2->next->prev = pos1->prev;
+    else
+	self->text.tail = pos1->prev;
     /* Attach nodes after line3 */
-    if (self->text.curr == self->text.tail)
+    if (self->text.curr->next == NULL) /* New tail */
 	self->text.tail = pos2;
     temp = self->text.curr->next;
     self->text.curr->next = pos1;
@@ -251,6 +255,7 @@ void TextBuffer_number(struct TextBuffer *self, unsigned int line1, unsigned int
 void TextBuffer_transfer(struct TextBuffer *self, unsigned int line1, unsigned int line2, unsigned int line3) /* Current address is set to last line copied */
 {
     assert(line2 >= line1 && line1 > 0 && line2 <= self->text.count && line3 <= self->text.count);
+    assert(line3 <= line1 && line3 >= line2);
     unsigned int transSize = line2 - line1 + 1;
     struct Node *pos1, *pos2;
     struct Node *ins;
@@ -276,7 +281,7 @@ void TextBuffer_transfer(struct TextBuffer *self, unsigned int line1, unsigned i
 }
 
 void TextBuffer_write(struct TextBuffer *self, unsigned int line1, unsigned int line2, char *file) /* Current address is unchanged */
-{ /* TODO: Modify to support writing only a specified range to file */
+{
     assert(line1 > 0 && line2 >= line1 && line2 <= self->text.count);
     FILE *outFile = fopen(file, "w");
     if (outFile == NULL)
@@ -394,6 +399,20 @@ bool isSpecial(char c)
     }
 }
 
+bool isSuffix(char c)
+/* Return true if the character is a valid suffix command */
+{
+    switch(c)
+    {
+    case 'p':
+    case 'l':
+    case 'n':
+	return true;
+    default:
+	return false;
+    }
+}
+
 unsigned int interpretSpecial(struct TextBuffer *buff, char *s, unsigned int *offset)
 /* Interpret the value of the special substring relative to the buffer.
    Does not include the special characters ',' and ';'. Returns how many
@@ -403,41 +422,50 @@ unsigned int interpretSpecial(struct TextBuffer *buff, char *s, unsigned int *of
     switch (s[0])
     {
     case '.':
-	*offset = 1;
+	if (offset != NULL)
+	    *offset = 1;
 	return buff->currAddr(buff);
     case '$':
-	*offset = 1;
+	if (offset != NULL)
+	    *offset = 1;
 	return buff->size(buff);
     case '+':
 	if (isdigit(s[1]))
 	{
 	    retVal = buff->currAddr(buff) + atoi(s + 1);
-	    *offset = 2;
+	    if (offset != NULL)
+		*offset = 2;
 	    while (isdigit(s[*offset]))
 		++offset;
 	    return retVal;
 	}
 	else
 	{
-	    *offset = 1;
+	    if (offset != NULL)
+		*offset = 1;
 	    return buff->currAddr(buff) + 1;
 	}
     case '-':
 	if (isdigit(s[1]))
 	{
 	    retVal = buff->currAddr(buff) - atoi(s + 1);
-	    *offset = 2;
-	    while (isdigit(s[*offset]))
+	    if (offset != NULL)
+	    {
+		*offset = 2;
+		while (isdigit(s[*offset]))
 		++offset;
+	    }
 	    return retVal;
 	}
 	else
 	{
-	    *offset = 1;
+	    if (offset != NULL)
+		*offset = 1;
 	    return buff->currAddr(buff) - 1;
 	}
     default:
-	*offset = 0;
+	if (offset != NULL)
+	    *offset = 0;
 	return INVALID_ADDR;
     }
 }
@@ -577,14 +605,27 @@ void inputMode(char *input, LinkList *buff) /* Enter input mode */
     }
 }
 
-int main(int argc, char **argv) /* TODO: Implement main driver */
+char processSuffix(char *s) /* Get valid suffix command from string if present */
+{
+    char command = INVALID_CMD;
+    unsigned int pos = 0;
+    while (isSuffix(s[pos]))
+    {
+	command = s[pos];
+	++pos;
+    }
+    return command;
+}
+
+int main(int argc, char **argv)
 {
     bool done = false;
     char input[BUFF_LEN]; /* Line input from user */
-    char command; /* Command argument */
-    int addr1, addr2; /* Line address arguments */
+    char command; /* Command arguments */
+    int addr1, addr2, addr3; /* Line address arguments */
     char param[BUFF_LEN]; /* Prameter argument */
-     struct TextBuffer textBuff = makeBuffer(); /* Buffer of text for the document */
+    char defaultFile[BUFF_LEN] = "file"; /* Default file name */
+    struct TextBuffer textBuff = makeBuffer(); /* Buffer of text for the document */
     struct LinkList inputBuff = makeList(); /* Buffer of input lines for input mode */
     while (!done)
     {
@@ -606,6 +647,20 @@ int main(int argc, char **argv) /* TODO: Implement main driver */
 	    {
 		inputMode(input, &inputBuff); /* Enter input mode and fill input buffer */
 		textBuff.append(&textBuff, addr1, &inputBuff); /* Insert input buffer after inputted address */
+		command = processSuffix(param); /* Look for a suffix command */
+		if (command != INVALID_CMD)
+		    switch (command)
+		    {
+		    case 'p':
+			textBuff.print(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			break;
+		    case 'l':
+			textBuff.list(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			break;
+		    case 'n':
+			textBuff.number(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			break;
+		    }
 	    }
 	    else
 		puts("Error: Invalid address.");
@@ -622,6 +677,20 @@ int main(int argc, char **argv) /* TODO: Implement main driver */
 	    {
 		inputMode(input, &inputBuff); /* Enter input mode and fill input buffer */
 		textBuff.append(&textBuff, (addr1 == 0) ? 0 : (addr1 - 1), &inputBuff); /* Insert input buffer before inputted address */
+		command = processSuffix(param); /* Look for a suffix command */
+		if (command != INVALID_CMD)
+		    switch (command)
+		    {
+		    case 'p':
+			textBuff.print(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			break;
+		    case 'l':
+			textBuff.list(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			break;
+		    case 'n':
+			textBuff.number(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			break;
+		    }
 	    }
 	    else
 		puts("Error: Invalid address.");
@@ -636,6 +705,20 @@ int main(int argc, char **argv) /* TODO: Implement main driver */
 	    {
 		inputMode(input, &inputBuff); /* Enter input mode and fill input buffer */
 		textBuff.change(&textBuff, addr1, addr2, &inputBuff);
+		command = processSuffix(param); /* Look for a suffix command */
+		if (command != INVALID_CMD)
+		    switch (command)
+		    {
+		    case 'p':
+			textBuff.print(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			break;
+		    case 'l':
+			textBuff.list(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			break;
+		    case 'n':
+			textBuff.number(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			break;
+		    }
 	    }
 	    else
 		puts("Error: Invalid address.");
@@ -662,7 +745,23 @@ int main(int argc, char **argv) /* TODO: Implement main driver */
 		break;
 	    }
 	    if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count)
+	    {
 		textBuff.join(&textBuff, addr1, addr2);
+		command = processSuffix(param); /* Look for a suffix command */
+		if (command != INVALID_CMD)
+		    switch (command)
+		    {
+		    case 'p':
+			textBuff.print(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			break;
+		    case 'l':
+			textBuff.list(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			break;
+		    case 'n':
+			textBuff.number(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			break;
+		    }
+	    }
 	    else
 		puts("Error: Invalid address.");
 	    break;
@@ -696,14 +795,100 @@ int main(int argc, char **argv) /* TODO: Implement main driver */
 	    else
 		puts("Error: Invalid address.");
 	    break;
+	case 'm': /* Moves addressed lines to after the destination address */
+	    if (addr1 == INVALID_ADDR && addr2 == INVALID_ADDR) /* Received no address arguments */
+		addr1 = addr2 = textBuff.text.pos; /* Use current address */
+	    else if (addr2 == INVALID_ADDR) /* Received only one address */
+		addr2 = addr1; /* Affect only addr1 */
+	    if (strlen(param) == 0) /* No third address given */
+		addr3 = textBuff.text.pos; /* Use current address */
+	    else /* Read in addr3 from param */
+	    {
+		if (isSpecial(param[0]))
+		    addr3 = interpretSpecial(&textBuff, param, NULL);
+		else if (isdigit(param[0]))
+		    addr3 = atoi(param);
+	    }
+	    if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count && addr3 != INVALID_ADDR && addr3 <= addr1 && addr3 >= addr2)
+	    {
+		textBuff.move(&textBuff, addr1, addr2, addr3);
+		command = processSuffix(param); /* Look for a suffix command */
+		if (command != INVALID_CMD)
+		    switch (command)
+		    {
+		    case 'p':
+			textBuff.print(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			break;
+		    case 'l':
+			textBuff.list(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			break;
+		    case 'n':
+			textBuff.number(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			break;
+		    }
+	    }
+	    else
+		puts("Error: Invalid address.");
+	    break;
 	case 't': /* Copies addressed lines to after the destination address */
-	    
+	    if (addr1 == INVALID_ADDR && addr2 == INVALID_ADDR) /* Received no address arguments */
+		addr1 = addr2 = textBuff.text.pos; /* Use current address */
+	    else if (addr2 == INVALID_ADDR) /* Received only one address */
+		addr2 = addr1; /* Affect only addr1 */
+	    if (strlen(param) == 0) /* No third address given */
+		addr3 = textBuff.text.pos; /* Use current address */
+	    else /* Read in addr3 from param */
+	    {
+		if (isSpecial(param[0]))
+		    addr3 = interpretSpecial(&textBuff, param, NULL);
+		else if (isdigit(param[0]))
+		    addr3 = atoi(param);
+	    }
+	    if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count && addr3 != INVALID_ADDR && addr3 <= addr1 && addr3 >= addr2)
+	    {
+		textBuff.transfer(&textBuff, addr1, addr2, addr3);
+		command = processSuffix(param); /* Look for a suffix command */
+		if (command != INVALID_CMD)
+		    switch (command)
+		    {
+		    case 'p':
+			textBuff.print(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			break;
+		    case 'l':
+			textBuff.list(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			break;
+		    case 'n':
+			textBuff.number(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			break;
+		    }
+	    }
+	    else
+		puts("Error: Invalid address.");
 	    break;
 	case 'w': /* Write to file */
-	    
+	    if (addr1 == INVALID_ADDR && addr2 == INVALID_ADDR) /* Received no address arguments */
+	    {
+		/* Use whole buffer */
+		addr1 = 1;
+		addr2 = textBuff.text.count;
+	    }
+	    else if (addr2 == INVALID_ADDR) /* Received only one address */
+		addr2 = addr1; /* Affect only addr1 */
+	    if (strlen(param) == 0) /* Use default file name if none is specified */
+		strcpy(param, defaultFile);
+	    else
+		strcpy(defaultFile, param); /* Set default file name to given file name */
+	    if (addr1 > 0 && addr1 <= (int) textBuff.text.count)
+		textBuff.write(&textBuff, addr1, addr2, param);
+	    else
+		puts("Error: Invalid address.");
 	    break;
 	case 'e': /* Load contents from file */
-	    
+	    if (strlen(param) == 0) /* Use default file name if none is specified */
+		strcpy(param, defaultFile);
+	    else
+		strcpy(defaultFile, param); /* Set default file name to given file name */
+	    textBuff.edit(&textBuff, param);
 	    break;
 	case 'q': /* Quit */
 	    if (textBuff.changesMade)
