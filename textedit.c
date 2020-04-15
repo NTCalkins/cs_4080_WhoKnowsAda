@@ -45,7 +45,7 @@ unsigned int TextBuffer_size(struct TextBuffer *self)
 
 void TextBuffer_append(struct TextBuffer *self, unsigned int line, struct LinkList *buff) /* Current address is set to last line entered */
 {
-    assert(line > 0 && line <= self->text.count);
+    assert(line >= 0 && line <= self->text.count);
     /* Move position in buffer for insertion after input line */
     if (self->text.pos != line)
 	self->text.move(&(self->text), line);
@@ -54,6 +54,8 @@ void TextBuffer_append(struct TextBuffer *self, unsigned int line, struct LinkLi
     /* Insert contents of buff in between curr and curr->next */
     if (self->text.curr->next != NULL)
 	self->text.curr->next->prev = buff->tail;
+    else /* self->text.curr is the tail */
+	self->text.tail = buff->tail;
     self->text.curr->next = buff->head->next;
     self->text.count += buff->count; /* Update size of text buffer */
     self->text.curr = buff->tail; /* Update position of text buffer */
@@ -66,7 +68,7 @@ void TextBuffer_append(struct TextBuffer *self, unsigned int line, struct LinkLi
 
 void TextBuffer_delete(struct TextBuffer *self, unsigned int line1, unsigned int line2) /* Current address is set to after last line deleted */
 {
-    assert(line2 >= line1 && line1 > 0 && line1 <= self->text.count);
+    assert(line2 >= line1 && line1 > 0 && line2 <= self->text.count);
     struct Node *pos1, *pos2; /* Positions for deletion */
     unsigned int temp;
     if (self->text.pos != (line1 - 1))
@@ -87,7 +89,7 @@ void TextBuffer_delete(struct TextBuffer *self, unsigned int line1, unsigned int
 
 void TextBuffer_change(struct TextBuffer *self, unsigned int line1, unsigned int line2, struct LinkList *buff) /* Current address set to last line entered or, if none, line after last deleted */
 {
-    assert(line2 >= line1 && line1 > 0 && line1 <= self->text.count);
+    assert(line2 >= line1 && line1 > 0 && line2 <= self->text.count);
     if (buff->count == 0) /* Simply delete the lines if input buffer is empty */
 	TextBuffer_delete(self, line1, line2);
     else
@@ -111,8 +113,11 @@ void TextBuffer_change(struct TextBuffer *self, unsigned int line1, unsigned int
 	    pos2->prev = buff->tail;
 	    buff->tail = temp;
 	}
-	else
+	else /* self->text.curr is the tail */
+	{
+	    self->text.tail = buff->tail;
 	    buff->tail = self->text.curr;
+	}
 	self->text.count += (buff->count - changeSize); /* Update line count */
 	self->text.move(&(self->text), line1 + buff->count); /* Move current address to last line added */
 	buff->clear(buff); /* Delete old nodes and reinitialize input buffer */
@@ -122,7 +127,7 @@ void TextBuffer_change(struct TextBuffer *self, unsigned int line1, unsigned int
 
 void TextBuffer_join(struct TextBuffer *self, unsigned int line1, unsigned int line2) /* Current address is set to the joined line */
 {
-    assert(line2 >= line1 && line1 > 0 && line1 <= self->text.count);
+    assert(line2 > line1 && line1 > 0 && line2 <= self->text.count);
     struct Node *pos1, *pos2;
     unsigned int temp;
     if (self->text.pos != line1)
@@ -144,18 +149,21 @@ void TextBuffer_join(struct TextBuffer *self, unsigned int line1, unsigned int l
 
 void TextBuffer_move(struct TextBuffer *self, unsigned int line1, unsigned int line2, unsigned int line3) /* Current address is set to new address of last line moved */
 {
-    assert(line2 >= line1 && line1 > 0 && line1 <= self->text.count && line3 <= self->text.count);
+    assert(line2 >= line1 && line1 > 0 && line2 <= self->text.count && line3 <= self->text.count);
     struct Node *pos1, *pos2, *temp;
     if (self->text.pos != line1)
 	self->text.move(&(self->text), line1);
     pos1 = self->text.curr;
-    self->text.move(&(self->text), line2);
+    if (line2 != line1)
+	self->text.move(&(self->text), line2);
     pos2 = self->text.curr;
     self->text.move(&(self->text), line3);
     /* Detach nodes from list */
     pos1->prev->next = pos2->next;
     pos2->next->prev = pos1->prev;
     /* Attach nodes after line3 */
+    if (self->text.curr == self->text.tail)
+	self->text.tail = pos2;
     temp = self->text.curr->next;
     self->text.curr->next = pos1;
     pos1->prev = self->text.curr;
@@ -173,7 +181,7 @@ void TextBuffer_move(struct TextBuffer *self, unsigned int line1, unsigned int l
 
 void TextBuffer_print(struct TextBuffer *self, unsigned int line1, unsigned int line2) /* Current address is set to last line printed */
 {
-    assert(line2 >= line1 && line1 > 0 && line1 <= self->text.count);
+    assert(line2 >= line1 && line1 > 0 && line2 <= self->text.count);
     if (self->text.pos != (line1 - 1))
 	self->text.move(&(self->text), line1 - 1);
     for (unsigned int i = line1; i <= line2; ++i)
@@ -185,7 +193,7 @@ void TextBuffer_print(struct TextBuffer *self, unsigned int line1, unsigned int 
 
 void TextBuffer_list(struct TextBuffer *self, unsigned int line1, unsigned int line2) /* Current address is set to last line printed */
 {
-    assert(line2 >= line1 && line1 > 0 && line1 <= self->text.count);
+    assert(line2 >= line1 && line1 > 0 && line2 <= self->text.count);
     char *string;
     unsigned int i;
     if (self->text.pos != (line1 - 1))
@@ -230,7 +238,7 @@ void TextBuffer_list(struct TextBuffer *self, unsigned int line1, unsigned int l
 
 void TextBuffer_number(struct TextBuffer *self, unsigned int line1, unsigned int line2) /* Current address is set to last line printed */
 {
-    assert(line2 >= line1 && line1 > 0 && line1 <= self->text.count);
+    assert(line2 >= line1 && line1 > 0 && line2 <= self->text.count);
     if (self->text.pos != (line1 - 1))
 	self->text.move(&(self->text), line1 - 1);
     for (unsigned int i = line1; i <= line2; ++i)
@@ -242,14 +250,15 @@ void TextBuffer_number(struct TextBuffer *self, unsigned int line1, unsigned int
 
 void TextBuffer_transfer(struct TextBuffer *self, unsigned int line1, unsigned int line2, unsigned int line3) /* Current address is set to last line copied */
 {
-    assert(line2 >= line1 && line1 > 0 && line1 <= self->text.count && line3 <= self->text.count);
+    assert(line2 >= line1 && line1 > 0 && line2 <= self->text.count && line3 <= self->text.count);
     unsigned int transSize = line2 - line1 + 1;
     struct Node *pos1, *pos2;
     struct Node *ins;
     if (self->text.pos != line1)
 	self->text.move(&(self->text), line1);
     pos1 = self->text.curr;
-    self->text.move(&(self->text), line2);
+    if (line2 != line1)
+	self->text.move(&(self->text), line2);
     pos2 = self->text.curr;
     self->text.move(&(self->text), line3);
     /* Insert lines in range after line3 */
@@ -266,14 +275,30 @@ void TextBuffer_transfer(struct TextBuffer *self, unsigned int line1, unsigned i
     self->changesMade = true;
 }
 
-void TextBuffer_write(struct TextBuffer *self, char *file) /* Current address is unchanged */
-{
+void TextBuffer_write(struct TextBuffer *self, unsigned int line1, unsigned int line2, char *file) /* Current address is unchanged */
+{ /* TODO: Modify to support writing only a specified range to file */
+    assert(line1 > 0 && line2 >= line1 && line2 <= self->text.count);
     FILE *outFile = fopen(file, "w");
-    struct Node *temp = self->text.head;
-    while (temp != self->text.tail) /* Write every line to out file*/
+    if (outFile == NULL)
     {
-	fputs(temp->next->get(temp->next), outFile);
-	temp = temp->next;
+	puts("Error: Could not open output file.");
+	return;
+    }
+    struct Node *pos1, *pos2, *tempNode;
+    unsigned int tempPos;
+    tempNode = self->text.curr;
+    tempPos = self->text.pos;
+    if (self->text.pos != (line1 - 1))
+	self->text.move(&(self->text), line1 - 1);
+    pos1 = self->text.curr;
+    self->text.move(&(self->text), line2);
+    pos2 = self->text.curr->next;
+    self->text.curr = tempNode;
+    self->text.pos = tempPos;
+    while (pos1->next != pos2)
+    {
+	fputs(pos1->next->get(pos1->next), outFile);
+	pos1 = pos1->next;
     }
     fclose(outFile);
     self->changesMade = false;
@@ -419,7 +444,7 @@ unsigned int interpretSpecial(struct TextBuffer *buff, char *s, unsigned int *of
 
 void parse(struct TextBuffer *buff, char *input, int *addr1, int *addr2, char *command, char *param)
 /* Parse the user inputted line */
-{ /* TODO: Needs testing */
+{
     unsigned int pos = 0;
     unsigned int temp = 0;
     const unsigned int inputLength = strlen(input);
@@ -564,32 +589,112 @@ int main(int argc, char **argv) /* TODO: Implement main driver */
     while (!done)
     {
 	fgets(input, sizeof(input), stdin);
+	if (input[strlen(input) - 1] == '\n') /* Trim the excess newline character */
+	    input[strlen(input) - 1] = '\0';
 	parse(&textBuff, input, &addr1, &addr2, &command, param);
 	switch (command)
 	{
 	case 'a': /* Enter input mode and insert after addressed line */
-	    
+	    if (addr1 != INVALID_ADDR && addr2 != INVALID_ADDR) /* Received 2 address arguments */
+	    {
+		puts("Error: This command does not take an address range.");
+		break;
+	    }
+	    else if (addr1 == INVALID_ADDR && addr2 == INVALID_ADDR) /* Received no address arguments */
+		addr1 = textBuff.text.pos; /* Use current address */
+	    if (addr1 > 0 && addr1 <= (int) textBuff.text.count)
+	    {
+		inputMode(input, &inputBuff); /* Enter input mode and fill input buffer */
+		textBuff.append(&textBuff, addr1, &inputBuff); /* Insert input buffer after inputted address */
+	    }
+	    else
+		puts("Error: Invalid address.");
 	    break;
 	case 'i': /* Enter input mode and insert before addressed line */
-	    
+	    if (addr1 != INVALID_ADDR && addr2 != INVALID_ADDR) /* Received 2 address arguments */
+	    {
+		puts("Error: This command does not take an address range.");
+		break;
+	    }
+	    else if (addr1 == INVALID_ADDR && addr2 == INVALID_ADDR) /* Received no address arguments */
+		addr1 = textBuff.text.pos; /* Use current address */
+	    if (addr1 > 0 && addr1 <= (int) textBuff.text.count)
+	    {
+		inputMode(input, &inputBuff); /* Enter input mode and fill input buffer */
+		textBuff.append(&textBuff, (addr1 == 0) ? 0 : (addr1 - 1), &inputBuff); /* Insert input buffer before inputted address */
+	    }
+	    else
+		puts("Error: Invalid address.");
 	    break;
 	case 'c': /* Enter input mode and change out addressed lines with input buffer */
-	    
+	    inputMode(input, &inputBuff);
+	    if (addr1 == INVALID_ADDR && addr2 == INVALID_ADDR) /* Received no address arguments */
+		addr1 = addr2 = textBuff.text.pos; /* Use current address */
+	    else if (addr2 == INVALID_ADDR) /* Received only one address */
+		addr2 = addr1; /* Affect only addr1 */
+	    if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count)
+	    {
+		inputMode(input, &inputBuff); /* Enter input mode and fill input buffer */
+		textBuff.change(&textBuff, addr1, addr2, &inputBuff);
+	    }
+	    else
+		puts("Error: Invalid address.");
 	    break;
 	case 'd': /* Delete addressed lines from buffer */
-	    
+	    if (addr1 == INVALID_ADDR && addr2 == INVALID_ADDR) /* Received no address arguments */
+		addr1 = addr2 = textBuff.text.pos; /* Use current address */
+	    else if (addr2 == INVALID_ADDR) /* Received only one address */
+		addr2 = addr1; /* Affect only addr1 */
+	    if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count)
+		textBuff.delete(&textBuff, addr1, addr2);
+	    else
+		puts("Error: Invalid address.");
 	    break;
 	case 'j': /* Replace addressed lines with their concatenation */
-	    
+	    if (addr1 == INVALID_ADDR && addr2 == INVALID_ADDR) /* Received no address arguments */
+	    {
+		addr1 = textBuff.text.pos;
+		addr2 = addr1 + 1;
+	    }
+	    else if (addr2 == INVALID_ADDR) /* Received only one address */
+	    {
+		puts("Error: This command requires an address range.");
+		break;
+	    }
+	    if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count)
+		textBuff.join(&textBuff, addr1, addr2);
+	    else
+		puts("Error: Invalid address.");
 	    break;
 	case 'p': /* Print out addressed lines */
-	    
+	    if (addr1 == INVALID_ADDR && addr2 == INVALID_ADDR) /* Received no address arguments */
+		addr1 = addr2 = textBuff.text.pos; /* Use current address */
+	    else if (addr2 == INVALID_ADDR) /* Received only one address */
+		addr2 = addr1; /* Affect only addr1 */
+	    if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count)
+		textBuff.print(&textBuff, addr1, addr2);
+	    else
+		puts("Error: Invalid address.");
 	    break;
 	case 'l': /* Print out addressed lines unambiguously */
-
+	    if (addr1 == INVALID_ADDR && addr2 == INVALID_ADDR) /* Received no address arguments */
+		addr1 = addr2 = textBuff.text.pos; /* Use current address */
+	    else if (addr2 == INVALID_ADDR) /* Received only one address */
+		addr2 = addr1; /* Affect only addr1 */
+	    if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count)
+		textBuff.list(&textBuff, addr1, addr2);
+	    else
+		puts("Error: Invalid address.");
 	    break;
 	case 'n': /* Print and number addressed lines */
-	    
+	    if (addr1 == INVALID_ADDR && addr2 == INVALID_ADDR) /* Received no address arguments */
+		addr1 = addr2 = textBuff.text.pos; /* Use current address */
+	    else if (addr2 == INVALID_ADDR) /* Received only one address */
+		addr2 = addr1; /* Affect only addr1 */
+	    if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count)
+		textBuff.number(&textBuff, addr1, addr2);
+	    else
+		puts("Error: Invalid address.");
 	    break;
 	case 't': /* Copies addressed lines to after the destination address */
 	    
