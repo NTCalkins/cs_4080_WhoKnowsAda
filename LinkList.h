@@ -1,7 +1,5 @@
 #pragma once
 #include "LinkList.c"
-#include "StaticLinkNode.h"
-// #include "DynamicLinkNode.h"
 
 struct LinkList;
 
