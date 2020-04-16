@@ -154,7 +154,7 @@ void TextBuffer_join(struct TextBuffer *self, unsigned int line1, unsigned int l
 void TextBuffer_move(struct TextBuffer *self, unsigned int line1, unsigned int line2, unsigned int line3) /* Current address is set to new address of last line moved */
 {
     assert(line2 >= line1 && line1 > 0 && line2 <= self->text.count && line3 <= self->text.count);
-    assert(line3 <= line1 && line3 >= line2);
+    assert(line3 < line1 || line3 > line2);
     struct Node *pos1, *pos2, *temp;
     if (self->text.pos != line1)
 	self->text.move(&(self->text), line1);
@@ -169,19 +169,26 @@ void TextBuffer_move(struct TextBuffer *self, unsigned int line1, unsigned int l
 	pos2->next->prev = pos1->prev;
     else
 	self->text.tail = pos1->prev;
+    pos1->prev = NULL;
+    pos2->next = NULL;
     /* Attach nodes after line3 */
     if (self->text.curr->next == NULL) /* New tail */
+    {
 	self->text.tail = pos2;
-    temp = self->text.curr->next;
-    self->text.curr->next = pos1;
-    pos1->prev = self->text.curr;
-    pos2->next = temp;
-    temp->prev = pos2;
+	self->text.curr->next = pos1;
+	pos1->prev = self->text.curr;
+    }
+    else
+    {
+	temp = self->text.curr->next;
+	self->text.curr->next = pos1;
+	pos1->prev = self->text.curr;
+	pos2->next = temp;
+	temp->prev = pos2;
+    }
     /* Move position to new position of last line moved */
     temp = self->text.curr;
     self->text.moveToStart(&(self->text));
-    while (self->text.curr != temp)
-	self->text.next(&(self->text));
     while (self->text.curr != pos2)
 	self->text.next(&(self->text));
     self->changesMade = true;
@@ -260,7 +267,7 @@ void TextBuffer_number(struct TextBuffer *self, unsigned int line1, unsigned int
 void TextBuffer_transfer(struct TextBuffer *self, unsigned int line1, unsigned int line2, unsigned int line3) /* Current address is set to last line copied */
 {
     assert(line2 >= line1 && line1 > 0 && line2 <= self->text.count && line3 <= self->text.count);
-    assert(line3 <= line1 && line3 >= line2);
+    assert(line3 < line1 || line3 > line2);
     unsigned int transSize = line2 - line1 + 1;
     struct Node *pos1, *pos2;
     struct Node *ins;
@@ -487,6 +494,8 @@ void parse(struct TextBuffer *buff, char *input, int *addr1, int *addr2, char *c
 	++pos;
     while (pos < inputLength)
     {
+	if (isblank(input[pos]))
+	    continue;
 	if (isdigit(input[pos])) /* Argument is a number */
 	{
 	    *addr2 = INVALID_ADDR; /* Reset addr2 */
@@ -802,7 +811,7 @@ int main(int argc, char **argv)
 		    else if (isdigit(param[0]))
 			addr3 = atoi(param);
 		}
-		if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count && addr3 != INVALID_ADDR && addr3 <= addr1 && addr3 >= addr2)
+		if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count && addr3 != INVALID_ADDR && (addr3 < addr1 || addr3 > addr2) && addr3 <= (int) textBuff.text.count)
 		{
 		    textBuff.move(&textBuff, addr1, addr2, addr3);
 		    command = processSuffix(param); /* Look for a suffix command */
@@ -837,7 +846,7 @@ int main(int argc, char **argv)
 		    else if (isdigit(param[0]))
 			addr3 = atoi(param);
 		}
-		if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count && addr3 != INVALID_ADDR && addr3 <= addr1 && addr3 >= addr2)
+		if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count && addr3 != INVALID_ADDR && (addr3 < addr1 || addr3 > addr2) && addr3 <= (int) textBuff.text.count)
 		{
 		    textBuff.transfer(&textBuff, addr1, addr2, addr3);
 		    command = processSuffix(param); /* Look for a suffix command */
@@ -901,7 +910,6 @@ int main(int argc, char **argv)
 	    default:
 		puts("Error: Unknown command.");
 	    }
-	    puts("Done");
 	}
     }
     return 0;
