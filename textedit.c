@@ -107,11 +107,14 @@ void TextBuffer_change(struct TextBuffer *self, unsigned int line1, unsigned int
 	/* Swap nodes */
 	temp = pos1->next;
 	pos1->next = buff->head->next;
+	buff->head->next->prev = pos1;
 	buff->head->next = temp;
 	if (pos2 != NULL)
 	{
 	    temp = pos2->prev;
+	    temp->next = NULL;
 	    pos2->prev = buff->tail;
+	    pos2->prev->next = pos2;
 	    buff->tail = temp;
 	}
 	else /* self->text.curr is the tail */
@@ -120,7 +123,7 @@ void TextBuffer_change(struct TextBuffer *self, unsigned int line1, unsigned int
 	    buff->tail = self->text.curr;
 	}
 	self->text.count += (buff->count - changeSize); /* Update line count */
-	self->text.move(&(self->text), line1 + buff->count); /* Move current address to last line added */
+	self->text.move(&(self->text), line1 + buff->count - 1); /* Move current address to last line added */
 	buff->clear(buff); /* Delete old nodes and reinitialize input buffer */
     }
     self->changesMade = true;
@@ -238,6 +241,7 @@ void TextBuffer_list(struct TextBuffer *self, unsigned int line1, unsigned int l
 	    ++i;
 	}
 	puts("$");
+	self->text.next(&(self->text));
     }
 }
 
@@ -248,7 +252,7 @@ void TextBuffer_number(struct TextBuffer *self, unsigned int line1, unsigned int
 	self->text.move(&(self->text), line1 - 1);
     for (unsigned int i = line1; i <= line2; ++i)
     {
-	printf("%d\t%s", i, self->text.curr->next->get(self->text.curr->next));
+	printf("%d\t%s\n", i, self->text.curr->next->get(self->text.curr->next));
 	self->text.next(&(self->text));
     }
 }
@@ -594,7 +598,7 @@ void parse(struct TextBuffer *buff, char *input, int *addr1, int *addr2, char *c
 void inputMode(char *input, struct LinkList *buff) /* Enter input mode */
 {
     struct Node *temp;
-    while (strcmp(fgets(input, sizeof(input), stdin), ".\n") != 0)
+    while (strcmp(fgets(input, BUFF_LEN, stdin), ".\n") != 0)
     {
 	/* Append inputed lines to input buffer */
 	if (input[strlen(input) - 1] == '\n')
@@ -620,293 +624,284 @@ char processSuffix(char *s) /* Get valid suffix command from string if present *
 int main(int argc, char **argv)
 {
     bool done = false;
-    char input[BUFF_LEN]; /* Line input from user */
+    char input[BUFF_LEN] = {}; /* Line input from user */
     char command; /* Command arguments */
     int addr1, addr2, addr3; /* Line address arguments */
-    char param[BUFF_LEN]; /* Prameter argument */
+    char param[BUFF_LEN] = {}; /* Prameter argument */
     char defaultFile[BUFF_LEN] = "file"; /* Default file name */
     struct TextBuffer textBuff = makeBuffer(); /* Buffer of text for the document */
     struct LinkList inputBuff = makeList(); /* Buffer of input lines for input mode */
     while (!done)
     {
-	fgets(input, sizeof(input), stdin);
+	fgets(input, BUFF_LEN, stdin);
 	if (input[strlen(input) - 1] == '\n') /* Trim the excess newline character */
 	    input[strlen(input) - 1] = '\0';
 	parse(&textBuff, input, &addr1, &addr2, &command, param);
-	switch (command)
+	if (command == INVALID_CMD && addr1 != INVALID_ADDR) /* Only an address was entered */
+	    textBuff.text.move(&(textBuff.text), addr1);
+	else
 	{
-	case 'a': /* Enter input mode and insert after addressed line */
-	    if (addr1 != INVALID_ADDR && addr2 != INVALID_ADDR) /* Received 2 address arguments */
+	    switch (command)
 	    {
-		puts("Error: This command does not take an address range.");
-		break;
-	    }
-	    else if (addr1 == INVALID_ADDR && addr2 == INVALID_ADDR) /* Received no address arguments */
-		addr1 = textBuff.text.pos; /* Use current address */
-	    if (addr1 >= 0 && addr1 <= (int) textBuff.text.count)
-	    {
-		inputMode(input, &inputBuff); /* Enter input mode and fill input buffer */
-		textBuff.append(&textBuff, addr1, &inputBuff); /* Insert input buffer after inputted address */
-		command = processSuffix(param); /* Look for a suffix command */
-		if (command != INVALID_CMD)
-		    switch (command)
-		    {
-		    case 'p':
-			textBuff.print(&textBuff, textBuff.text.pos, textBuff.text.pos);
-			break;
-		    case 'l':
-			textBuff.list(&textBuff, textBuff.text.pos, textBuff.text.pos);
-			break;
-		    case 'n':
-			textBuff.number(&textBuff, textBuff.text.pos, textBuff.text.pos);
-			break;
-		    }
-	    }
-	    else
-		puts("Error: Invalid address.");
-	    break;
-	case 'i': /* Enter input mode and insert before addressed line */
-	    if (addr1 != INVALID_ADDR && addr2 != INVALID_ADDR) /* Received 2 address arguments */
-	    {
-		puts("Error: This command does not take an address range.");
-		break;
-	    }
-	    else if (addr1 == INVALID_ADDR && addr2 == INVALID_ADDR) /* Received no address arguments */
-		addr1 = textBuff.text.pos; /* Use current address */
-	    if (addr1 >= 0 && addr1 <= (int) textBuff.text.count)
-	    {
-		inputMode(input, &inputBuff); /* Enter input mode and fill input buffer */
-		textBuff.append(&textBuff, (addr1 == 0) ? 0 : (addr1 - 1), &inputBuff); /* Insert input buffer before inputted address */
-		command = processSuffix(param); /* Look for a suffix command */
-		if (command != INVALID_CMD)
-		    switch (command)
-		    {
-		    case 'p':
-			textBuff.print(&textBuff, textBuff.text.pos, textBuff.text.pos);
-			break;
-		    case 'l':
-			textBuff.list(&textBuff, textBuff.text.pos, textBuff.text.pos);
-			break;
-		    case 'n':
-			textBuff.number(&textBuff, textBuff.text.pos, textBuff.text.pos);
-			break;
-		    }
-	    }
-	    else
-		puts("Error: Invalid address.");
-	    break;
-	case 'c': /* Enter input mode and change out addressed lines with input buffer */
-	    inputMode(input, &inputBuff);
-	    if (addr1 == INVALID_ADDR && addr2 == INVALID_ADDR) /* Received no address arguments */
-		addr1 = addr2 = textBuff.text.pos; /* Use current address */
-	    else if (addr2 == INVALID_ADDR) /* Received only one address */
-		addr2 = addr1; /* Affect only addr1 */
-	    if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count)
-	    {
-		inputMode(input, &inputBuff); /* Enter input mode and fill input buffer */
-		textBuff.change(&textBuff, addr1, addr2, &inputBuff);
-		command = processSuffix(param); /* Look for a suffix command */
-		if (command != INVALID_CMD)
-		    switch (command)
-		    {
-		    case 'p':
-			textBuff.print(&textBuff, textBuff.text.pos, textBuff.text.pos);
-			break;
-		    case 'l':
-			textBuff.list(&textBuff, textBuff.text.pos, textBuff.text.pos);
-			break;
-		    case 'n':
-			textBuff.number(&textBuff, textBuff.text.pos, textBuff.text.pos);
-			break;
-		    }
-	    }
-	    else
-		puts("Error: Invalid address.");
-	    break;
-	case 'd': /* Delete addressed lines from buffer */
-	    if (addr1 == INVALID_ADDR && addr2 == INVALID_ADDR) /* Received no address arguments */
-		addr1 = addr2 = textBuff.text.pos; /* Use current address */
-	    else if (addr2 == INVALID_ADDR) /* Received only one address */
-		addr2 = addr1; /* Affect only addr1 */
-	    if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count)
-		textBuff.delete(&textBuff, addr1, addr2);
-	    else
-		puts("Error: Invalid address.");
-	    break;
-	case 'j': /* Replace addressed lines with their concatenation */
-	    if (addr1 == INVALID_ADDR && addr2 == INVALID_ADDR) /* Received no address arguments */
-	    {
-		addr1 = textBuff.text.pos;
-		addr2 = addr1 + 1;
-	    }
-	    else if (addr2 == INVALID_ADDR) /* Received only one address */
-	    {
-		puts("Error: This command requires an address range.");
-		break;
-	    }
-	    if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count)
-	    {
-		textBuff.join(&textBuff, addr1, addr2);
-		command = processSuffix(param); /* Look for a suffix command */
-		if (command != INVALID_CMD)
-		    switch (command)
-		    {
-		    case 'p':
-			textBuff.print(&textBuff, textBuff.text.pos, textBuff.text.pos);
-			break;
-		    case 'l':
-			textBuff.list(&textBuff, textBuff.text.pos, textBuff.text.pos);
-			break;
-		    case 'n':
-			textBuff.number(&textBuff, textBuff.text.pos, textBuff.text.pos);
-			break;
-		    }
-	    }
-	    else
-		puts("Error: Invalid address.");
-	    break;
-	case 'p': /* Print out addressed lines */
-	    if (addr1 == INVALID_ADDR && addr2 == INVALID_ADDR) /* Received no address arguments */
-		addr1 = addr2 = textBuff.text.pos; /* Use current address */
-	    else if (addr2 == INVALID_ADDR) /* Received only one address */
-		addr2 = addr1; /* Affect only addr1 */
-	    if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count)
-		textBuff.print(&textBuff, addr1, addr2);
-	    else
-		puts("Error: Invalid address.");
-	    break;
-	case 'l': /* Print out addressed lines unambiguously */
-	    if (addr1 == INVALID_ADDR && addr2 == INVALID_ADDR) /* Received no address arguments */
-		addr1 = addr2 = textBuff.text.pos; /* Use current address */
-	    else if (addr2 == INVALID_ADDR) /* Received only one address */
-		addr2 = addr1; /* Affect only addr1 */
-	    if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count)
-		textBuff.list(&textBuff, addr1, addr2);
-	    else
-		puts("Error: Invalid address.");
-	    break;
-	case 'n': /* Print and number addressed lines */
-	    if (addr1 == INVALID_ADDR && addr2 == INVALID_ADDR) /* Received no address arguments */
-		addr1 = addr2 = textBuff.text.pos; /* Use current address */
-	    else if (addr2 == INVALID_ADDR) /* Received only one address */
-		addr2 = addr1; /* Affect only addr1 */
-	    if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count)
-		textBuff.number(&textBuff, addr1, addr2);
-	    else
-		puts("Error: Invalid address.");
-	    break;
-	case 'm': /* Moves addressed lines to after the destination address */
-	    if (addr1 == INVALID_ADDR && addr2 == INVALID_ADDR) /* Received no address arguments */
-		addr1 = addr2 = textBuff.text.pos; /* Use current address */
-	    else if (addr2 == INVALID_ADDR) /* Received only one address */
-		addr2 = addr1; /* Affect only addr1 */
-	    if (strlen(param) == 0) /* No third address given */
-		addr3 = textBuff.text.pos; /* Use current address */
-	    else /* Read in addr3 from param */
-	    {
-		if (isSpecial(param[0]))
-		    addr3 = interpretSpecial(&textBuff, param, NULL);
-		else if (isdigit(param[0]))
-		    addr3 = atoi(param);
-	    }
-	    if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count && addr3 != INVALID_ADDR && addr3 <= addr1 && addr3 >= addr2)
-	    {
-		textBuff.move(&textBuff, addr1, addr2, addr3);
-		command = processSuffix(param); /* Look for a suffix command */
-		if (command != INVALID_CMD)
-		    switch (command)
-		    {
-		    case 'p':
-			textBuff.print(&textBuff, textBuff.text.pos, textBuff.text.pos);
-			break;
-		    case 'l':
-			textBuff.list(&textBuff, textBuff.text.pos, textBuff.text.pos);
-			break;
-		    case 'n':
-			textBuff.number(&textBuff, textBuff.text.pos, textBuff.text.pos);
-			break;
-		    }
-	    }
-	    else
-		puts("Error: Invalid address.");
-	    break;
-	case 't': /* Copies addressed lines to after the destination address */
-	    if (addr1 == INVALID_ADDR && addr2 == INVALID_ADDR) /* Received no address arguments */
-		addr1 = addr2 = textBuff.text.pos; /* Use current address */
-	    else if (addr2 == INVALID_ADDR) /* Received only one address */
-		addr2 = addr1; /* Affect only addr1 */
-	    if (strlen(param) == 0) /* No third address given */
-		addr3 = textBuff.text.pos; /* Use current address */
-	    else /* Read in addr3 from param */
-	    {
-		if (isSpecial(param[0]))
-		    addr3 = interpretSpecial(&textBuff, param, NULL);
-		else if (isdigit(param[0]))
-		    addr3 = atoi(param);
-	    }
-	    if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count && addr3 != INVALID_ADDR && addr3 <= addr1 && addr3 >= addr2)
-	    {
-		textBuff.transfer(&textBuff, addr1, addr2, addr3);
-		command = processSuffix(param); /* Look for a suffix command */
-		if (command != INVALID_CMD)
-		    switch (command)
-		    {
-		    case 'p':
-			textBuff.print(&textBuff, textBuff.text.pos, textBuff.text.pos);
-			break;
-		    case 'l':
-			textBuff.list(&textBuff, textBuff.text.pos, textBuff.text.pos);
-			break;
-		    case 'n':
-			textBuff.number(&textBuff, textBuff.text.pos, textBuff.text.pos);
-			break;
-		    }
-	    }
-	    else
-		puts("Error: Invalid address.");
-	    break;
-	case 'w': /* Write to file */
-	    if (addr1 == INVALID_ADDR && addr2 == INVALID_ADDR) /* Received no address arguments */
-	    {
-		/* Use whole buffer */
-		addr1 = 1;
-		addr2 = textBuff.text.count;
-	    }
-	    else if (addr2 == INVALID_ADDR) /* Received only one address */
-		addr2 = addr1; /* Affect only addr1 */
-	    if (strlen(param) == 0) /* Use default file name if none is specified */
-		strcpy(param, defaultFile);
-	    else
-		strcpy(defaultFile, param); /* Set default file name to given file name */
-	    if (addr1 > 0 && addr1 <= (int) textBuff.text.count)
-		textBuff.write(&textBuff, addr1, addr2, param);
-	    else
-		puts("Error: Invalid address.");
-	    break;
-	case 'e': /* Load contents from file */
-	    if (strlen(param) == 0) /* Use default file name if none is specified */
-		strcpy(param, defaultFile);
-	    else
-		strcpy(defaultFile, param); /* Set default file name to given file name */
-	    textBuff.edit(&textBuff, param);
-	    break;
-	case 'q': /* Quit */
-	    if (textBuff.changesMade)
-	    {
-		input[0] = '\0';
-		while (strcmp(input, "yes\n") != 0 && strcmp(input, "no\n") != 0)
+	    case 'a': /* Enter input mode and insert after addressed line */
+		if (addr1 != INVALID_ADDR && addr2 != INVALID_ADDR) /* Received 2 address arguments */
 		{
-		    printf("Unsaved changes in buffer. Still quit? (yes/no): ");
-		    fgets(input, sizeof(input), stdin);
+		    puts("Error: This command does not take an address range.");
+		    break;
 		}
-		if (strcmp(input, "yes\n") == 0)
+		else if (addr1 == INVALID_ADDR && addr2 == INVALID_ADDR) /* Received no address arguments */
+		    addr1 = textBuff.text.pos; /* Use current address */
+		if (addr1 >= 0 && addr1 <= (int) textBuff.text.count)
+		{
+		    inputMode(input, &inputBuff); /* Enter input mode and fill input buffer */
+		    textBuff.append(&textBuff, addr1, &inputBuff); /* Insert input buffer after inputted address */
+		    command = processSuffix(param); /* Look for a suffix command */
+		    if (command != INVALID_CMD)
+			switch (command)
+			{
+			case 'p':
+			    textBuff.print(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			    break;
+			case 'l':
+			    textBuff.list(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			    break;
+			case 'n':
+			    textBuff.number(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			    break;
+			}
+		}
+		else
+		    puts("Error: Invalid address.");
+		break;
+	    case 'i': /* Enter input mode and insert before addressed line */
+		if (addr1 != INVALID_ADDR && addr2 != INVALID_ADDR) /* Received 2 address arguments */
+		{
+		    puts("Error: This command does not take an address range.");
+		    break;
+		}
+		else if (addr1 == INVALID_ADDR && addr2 == INVALID_ADDR) /* Received no address arguments */
+		    addr1 = textBuff.text.pos; /* Use current address */
+		if (addr1 >= 0 && addr1 <= (int) textBuff.text.count)
+		{
+		    inputMode(input, &inputBuff); /* Enter input mode and fill input buffer */
+		    textBuff.append(&textBuff, (addr1 == 0) ? 0 : (addr1 - 1), &inputBuff); /* Insert input buffer before inputted address */
+		    command = processSuffix(param); /* Look for a suffix command */
+		    if (command != INVALID_CMD)
+			switch (command)
+			{
+			case 'p':
+			    textBuff.print(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			    break;
+			case 'l':
+			    textBuff.list(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			    break;
+			case 'n':
+			    textBuff.number(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			    break;
+			}
+		}
+		else
+		    puts("Error: Invalid address.");
+		break;
+	    case 'c': /* Enter input mode and change out addressed lines with input buffer */
+		if (addr1 == INVALID_ADDR && addr2 == INVALID_ADDR) /* Received no address arguments */
+		    addr1 = addr2 = textBuff.text.pos; /* Use current address */
+		else if (addr2 == INVALID_ADDR) /* Received only one address */
+		    addr2 = addr1; /* Affect only addr1 */
+		if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count)
+		{
+		    inputMode(input, &inputBuff); /* Enter input mode and fill input buffer */
+		    textBuff.change(&textBuff, addr1, addr2, &inputBuff);
+		}
+		else
+		    puts("Error: Invalid address.");
+		break;
+	    case 'd': /* Delete addressed lines from buffer */
+		if (addr1 == INVALID_ADDR && addr2 == INVALID_ADDR) /* Received no address arguments */
+		    addr1 = addr2 = textBuff.text.pos; /* Use current address */
+		else if (addr2 == INVALID_ADDR) /* Received only one address */
+		    addr2 = addr1; /* Affect only addr1 */
+		if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count)
+		    textBuff.delete(&textBuff, addr1, addr2);
+		else
+		    puts("Error: Invalid address.");
+		break;
+	    case 'j': /* Replace addressed lines with their concatenation */
+		if (addr1 == INVALID_ADDR && addr2 == INVALID_ADDR) /* Received no address arguments */
+		{
+		    addr1 = textBuff.text.pos;
+		    addr2 = addr1 + 1;
+		}
+		else if (addr2 == INVALID_ADDR) /* Received only one address */
+		{
+		    puts("Error: This command requires an address range.");
+		    break;
+		}
+		if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count)
+		{
+		    textBuff.join(&textBuff, addr1, addr2);
+		    command = processSuffix(param); /* Look for a suffix command */
+		    if (command != INVALID_CMD)
+			switch (command)
+			{
+			case 'p':
+			    textBuff.print(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			    break;
+			case 'l':
+			    textBuff.list(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			    break;
+			case 'n':
+			    textBuff.number(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			    break;
+			}
+		}
+		else
+		    puts("Error: Invalid address.");
+		break;
+	    case 'p': /* Print out addressed lines */
+		if (addr1 == INVALID_ADDR && addr2 == INVALID_ADDR) /* Received no address arguments */
+		    addr1 = addr2 = textBuff.text.pos; /* Use current address */
+		else if (addr2 == INVALID_ADDR) /* Received only one address */
+		    addr2 = addr1; /* Affect only addr1 */
+		if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count)
+		    textBuff.print(&textBuff, addr1, addr2);
+		else
+		    puts("Error: Invalid address.");
+		break;
+	    case 'l': /* Print out addressed lines unambiguously */
+		if (addr1 == INVALID_ADDR && addr2 == INVALID_ADDR) /* Received no address arguments */
+		    addr1 = addr2 = textBuff.text.pos; /* Use current address */
+		else if (addr2 == INVALID_ADDR) /* Received only one address */
+		    addr2 = addr1; /* Affect only addr1 */
+		if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count)
+		    textBuff.list(&textBuff, addr1, addr2);
+		else
+		    puts("Error: Invalid address.");
+		break;
+	    case 'n': /* Print and number addressed lines */
+		if (addr1 == INVALID_ADDR && addr2 == INVALID_ADDR) /* Received no address arguments */
+		    addr1 = addr2 = textBuff.text.pos; /* Use current address */
+		else if (addr2 == INVALID_ADDR) /* Received only one address */
+		    addr2 = addr1; /* Affect only addr1 */
+		if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count)
+		    textBuff.number(&textBuff, addr1, addr2);
+		else
+		    puts("Error: Invalid address.");
+		break;
+	    case 'm': /* Moves addressed lines to after the destination address */
+		if (addr1 == INVALID_ADDR && addr2 == INVALID_ADDR) /* Received no address arguments */
+		    addr1 = addr2 = textBuff.text.pos; /* Use current address */
+		else if (addr2 == INVALID_ADDR) /* Received only one address */
+		    addr2 = addr1; /* Affect only addr1 */
+		if (strlen(param) == 0) /* No third address given */
+		    addr3 = textBuff.text.pos; /* Use current address */
+		else /* Read in addr3 from param */
+		{
+		    if (isSpecial(param[0]))
+			addr3 = interpretSpecial(&textBuff, param, NULL);
+		    else if (isdigit(param[0]))
+			addr3 = atoi(param);
+		}
+		if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count && addr3 != INVALID_ADDR && addr3 <= addr1 && addr3 >= addr2)
+		{
+		    textBuff.move(&textBuff, addr1, addr2, addr3);
+		    command = processSuffix(param); /* Look for a suffix command */
+		    if (command != INVALID_CMD)
+			switch (command)
+			{
+			case 'p':
+			    textBuff.print(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			    break;
+			case 'l':
+			    textBuff.list(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			    break;
+			case 'n':
+			    textBuff.number(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			    break;
+			}
+		}
+		else
+		    puts("Error: Invalid address.");
+		break;
+	    case 't': /* Copies addressed lines to after the destination address */
+		if (addr1 == INVALID_ADDR && addr2 == INVALID_ADDR) /* Received no address arguments */
+		    addr1 = addr2 = textBuff.text.pos; /* Use current address */
+		else if (addr2 == INVALID_ADDR) /* Received only one address */
+		    addr2 = addr1; /* Affect only addr1 */
+		if (strlen(param) == 0) /* No third address given */
+		    addr3 = textBuff.text.pos; /* Use current address */
+		else /* Read in addr3 from param */
+		{
+		    if (isSpecial(param[0]))
+			addr3 = interpretSpecial(&textBuff, param, NULL);
+		    else if (isdigit(param[0]))
+			addr3 = atoi(param);
+		}
+		if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count && addr3 != INVALID_ADDR && addr3 <= addr1 && addr3 >= addr2)
+		{
+		    textBuff.transfer(&textBuff, addr1, addr2, addr3);
+		    command = processSuffix(param); /* Look for a suffix command */
+		    if (command != INVALID_CMD)
+			switch (command)
+			{
+			case 'p':
+			    textBuff.print(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			    break;
+			case 'l':
+			    textBuff.list(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			    break;
+			case 'n':
+			    textBuff.number(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			    break;
+			}
+		}
+		else
+		    puts("Error: Invalid address.");
+		break;
+	    case 'w': /* Write to file */
+		if (addr1 == INVALID_ADDR && addr2 == INVALID_ADDR) /* Received no address arguments */
+		{
+		    /* Use whole buffer */
+		    addr1 = 1;
+		    addr2 = textBuff.text.count;
+		}
+		else if (addr2 == INVALID_ADDR) /* Received only one address */
+		    addr2 = addr1; /* Affect only addr1 */
+		if (strlen(param) == 0) /* Use default file name if none is specified */
+		    strcpy(param, defaultFile);
+		else
+		    strcpy(defaultFile, param); /* Set default file name to given file name */
+		if (addr1 > 0 && addr1 <= (int) textBuff.text.count)
+		    textBuff.write(&textBuff, addr1, addr2, param);
+		else
+		    puts("Error: Invalid address.");
+		break;
+	    case 'e': /* Load contents from file */
+		if (strlen(param) == 0) /* Use default file name if none is specified */
+		    strcpy(param, defaultFile);
+		else
+		    strcpy(defaultFile, param); /* Set default file name to given file name */
+		textBuff.edit(&textBuff, param);
+		break;
+	    case 'q': /* Quit */
+		if (textBuff.changesMade)
+		{
+		    input[0] = '\0';
+		    while (strcmp(input, "yes\n") != 0 && strcmp(input, "no\n") != 0)
+		    {
+			printf("Unsaved changes in buffer. Still quit? (yes/no): ");
+			fgets(input, BUFF_LEN, stdin);
+		    }
+		    if (strcmp(input, "yes\n") == 0)
+			done = true;
+		}
+		else
 		    done = true;
+		break;
+	    default:
+		puts("Error: Unknown command.");
 	    }
-	    else
-		done = true;
-	    break;
-	default:
-	    puts("Error: Unknown command.");
+	    puts("Done");
 	}
     }
     return 0;

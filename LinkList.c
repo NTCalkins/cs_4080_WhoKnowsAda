@@ -49,6 +49,7 @@ void LinkList_insert(struct LinkList *self, struct Node *it)
 
 void LinkList_append(struct LinkList *self, struct Node *it)
 {
+    it->prev = self->tail;
     self->tail = self->tail->next = it;
     ++(self->count);
 }
