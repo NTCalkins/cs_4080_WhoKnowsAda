@@ -64,6 +64,7 @@ void TextBuffer_append(struct TextBuffer *self, unsigned int line, struct LinkLi
     buff->tail = buff->curr = buff->head;
     buff->count = 0;
     buff->pos = 0;
+    self->changesMade = true;
 }
 
 void TextBuffer_delete(struct TextBuffer *self, unsigned int line1, unsigned int line2) /* Current address is set to after last line deleted */
@@ -188,7 +189,7 @@ void TextBuffer_print(struct TextBuffer *self, unsigned int line1, unsigned int 
     assert(line2 >= line1 && line1 > 0 && line2 <= self->text.count);
     if (self->text.pos != (line1 - 1))
 	self->text.move(&(self->text), line1 - 1);
-    for (unsigned int i = line1; i <= line2; ++i)
+    for (unsigned int i = 0; i < (line2 - line1 + 1); ++i)
     {
 	puts(self->text.curr->next->get(self->text.curr->next)); /* Print string contents of node */
 	self->text.next(&(self->text)); /* Advance position of buffer */
@@ -303,6 +304,7 @@ void TextBuffer_write(struct TextBuffer *self, unsigned int line1, unsigned int 
     while (pos1->next != pos2)
     {
 	fputs(pos1->next->get(pos1->next), outFile);
+	fputc('\n', outFile);
 	pos1 = pos1->next;
     }
     fclose(outFile);
@@ -391,8 +393,6 @@ bool isSpecial(char c)
     case '$':
     case '+':
     case '-':
-    case ',':
-    case ';':
 	return true;
     default:
 	return false;
@@ -643,7 +643,7 @@ int main(int argc, char **argv)
 	    }
 	    else if (addr1 == INVALID_ADDR && addr2 == INVALID_ADDR) /* Received no address arguments */
 		addr1 = textBuff.text.pos; /* Use current address */
-	    if (addr1 > 0 && addr1 <= (int) textBuff.text.count)
+	    if (addr1 >= 0 && addr1 <= (int) textBuff.text.count)
 	    {
 		inputMode(input, &inputBuff); /* Enter input mode and fill input buffer */
 		textBuff.append(&textBuff, addr1, &inputBuff); /* Insert input buffer after inputted address */
@@ -673,7 +673,7 @@ int main(int argc, char **argv)
 	    }
 	    else if (addr1 == INVALID_ADDR && addr2 == INVALID_ADDR) /* Received no address arguments */
 		addr1 = textBuff.text.pos; /* Use current address */
-	    if (addr1 > 0 && addr1 <= (int) textBuff.text.count)
+	    if (addr1 >= 0 && addr1 <= (int) textBuff.text.count)
 	    {
 		inputMode(input, &inputBuff); /* Enter input mode and fill input buffer */
 		textBuff.append(&textBuff, (addr1 == 0) ? 0 : (addr1 - 1), &inputBuff); /* Insert input buffer before inputted address */
@@ -902,6 +902,8 @@ int main(int argc, char **argv)
 		if (strcmp(input, "yes\n") == 0)
 		    done = true;
 	    }
+	    else
+		done = true;
 	    break;
 	default:
 	    puts("Error: Unknown command.");
