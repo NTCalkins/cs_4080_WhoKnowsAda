@@ -1,6 +1,6 @@
 /* Node that uses a dynamic length string implementation */
 #pragma once
-#include "DynamicString.c"
+#include "DynamicString.h"
 
 struct Node
 {
@@ -39,7 +39,7 @@ struct Node* makeNode()
     return result;
 }
 
-inline void deleteNode(struct Node *it)
+void deleteNode(struct Node *it)
 {
     deleteString(&(it->string));
 }

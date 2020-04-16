@@ -4,7 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include "LinkList.c"
+#include "LinkList.h"
 
 #define INVALID_ADDR -1 /* Value to indicate invalid address */
 #define INVALID_CMD '?' /* Value to indicate invalid command */
@@ -591,7 +591,7 @@ void parse(struct TextBuffer *buff, char *input, int *addr1, int *addr2, char *c
     }
 }
 
-void inputMode(char *input, LinkList *buff) /* Enter input mode */
+void inputMode(char *input, struct LinkList *buff) /* Enter input mode */
 {
     struct Node *temp;
     while (strcmp(fgets(input, sizeof(input), stdin), ".\n") != 0)

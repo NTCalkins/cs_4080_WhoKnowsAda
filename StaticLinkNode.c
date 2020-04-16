@@ -1,5 +1,4 @@
 /* Node that uses a static length string implementation */
-#pragma once
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -51,7 +50,7 @@ struct Node* makeNode()
     return result;
 }
 
-inline void deleteNode(struct Node *it) /* Does nothing for static length string */
+void deleteNode(struct Node *it) /* Does nothing for static length string */
 {
     return;
 }

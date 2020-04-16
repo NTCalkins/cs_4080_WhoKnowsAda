@@ -1,7 +1,6 @@
 /* Double linked list implementation */
-#pragma once
-#include "StaticLinkNode.c" /* Use static length strings in node */
-// #include "DynamicLinkNode.c" /* Use dynamic length strings in node */
+#include "StaticLinkNode.h" /* Use static length strings in node */
+// #include "DynamicLinkNode.h" /* Use dynamic length strings in node */
 
 struct LinkList
 {
@@ -13,7 +12,7 @@ struct LinkList
     void (*clear)(struct LinkList*); /* Clear the contents of the list */
     void (*insert)(struct LinkList*, struct Node*); /* Insert node before node at current position */
     void (*append)(struct LinkList*, struct Node*); /* Insert node at end of list */
-    void (*remove)(struct LinkList*); /* Remove the curr->next */
+    void (*remove)(struct LinkList*); /* Remove curr->next */
     void (*moveToStart)(struct LinkList*); /* Move current position to head */
     void (*moveToEnd)(struct LinkList*); /* Move current position to tail */
     void (*prev)(struct LinkList*); /* Shift current position one left */
@@ -135,7 +134,7 @@ struct LinkList makeList()
     return result;
 }
 
-inline void deleteList(struct LinkList *it)
+void deleteList(struct LinkList *it)
 {
     while (it->head != NULL)
     {
