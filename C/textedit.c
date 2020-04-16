@@ -495,8 +495,8 @@ void parse(struct TextBuffer *buff, char *input, int *addr1, int *addr2, char *c
     while (pos < inputLength)
     {
 	if (isblank(input[pos]))
-	    continue;
-	if (isdigit(input[pos])) /* Argument is a number */
+	    ++pos;
+	else if (isdigit(input[pos])) /* Argument is a number */
 	{
 	    *addr2 = INVALID_ADDR; /* Reset addr2 */
 	    *addr1 = atoi(input + pos); /* Extract the number from the input string and store as addr1 */
