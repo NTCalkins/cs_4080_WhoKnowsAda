@@ -326,9 +326,7 @@ void TextBuffer_edit(struct TextBuffer *self, char *file) /* Current address is 
 {
     FILE *inFile = fopen(file, "r");
     struct Node *temp;
-    if (inFile == NULL)
-	puts("Error: File not found.");
-    else
+    if (inFile != NULL)
     {
 	char input[BUFF_LEN];
 	self->text.clear(&(self->text)); /* Clear current text buffer */
@@ -640,6 +638,16 @@ int main(int argc, char **argv)
     char defaultFile[BUFF_LEN] = "file"; /* Default file name */
     struct TextBuffer textBuff = makeBuffer(); /* Buffer of text for the document */
     struct LinkList inputBuff = makeList(); /* Buffer of input lines for input mode */
+    if (argc > 2)
+    {
+	puts("Error: Too many arguments.");
+	return 1;
+    }
+    else if (argc == 2) /* File name passed as command line argument */
+    {
+	strcpy(defaultFile, argv[1]); /* Set argument as default file name */
+	textBuff.edit(&textBuff, defaultFile); /* Load file contents into buffer */
+    }
     while (!done)
     {
 	fgets(input, BUFF_LEN, stdin);
