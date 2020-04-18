@@ -631,10 +631,10 @@ char processSuffix(char *s) /* Get valid suffix command from string if present *
 int main(int argc, char **argv)
 {
     bool done = false;
-    char input[BUFF_LEN] = {}; /* Line input from user */
-    char command; /* Command arguments */
+    char input[BUFF_LEN] = ""; /* Line input from user */
+    char command = INVALID_CMD; /* Command arguments */
     int addr1, addr2, addr3; /* Line address arguments */
-    char param[BUFF_LEN] = {}; /* Prameter argument */
+    char param[BUFF_LEN] = ""; /* Prameter argument */
     char defaultFile[BUFF_LEN] = "file"; /* Default file name */
     struct TextBuffer textBuff = makeBuffer(); /* Buffer of text for the document */
     struct LinkList inputBuff = makeList(); /* Buffer of input lines for input mode */

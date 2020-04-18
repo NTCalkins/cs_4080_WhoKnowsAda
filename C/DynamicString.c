@@ -57,7 +57,7 @@ struct DynamicString makeString() /* Constructor for DynamicString */
     return result;
 }
 
-inline void deleteString(struct DynamicString *it) /* Destructor for DynamicString */
+void deleteString(struct DynamicString *it) /* Destructor for DynamicString */
 {
     free(it->string);
 }
