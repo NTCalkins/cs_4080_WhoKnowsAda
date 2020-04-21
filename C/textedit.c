@@ -661,7 +661,7 @@ int main(int argc, char **argv)
 	    switch (command)
 	    {
 	    case 'a': /* Enter input mode and insert after addressed line */
-		if (addr1 != INVALID_ADDR && addr2 != INVALID_ADDR) /* Received 2 address arguments */
+		if (addr2 != INVALID_ADDR) /* Received 2 address arguments */
 		{
 		    puts("Error: This command does not take an address range.");
 		    break;
@@ -691,7 +691,7 @@ int main(int argc, char **argv)
 		    puts("Error: Invalid address.");
 		break;
 	    case 'i': /* Enter input mode and insert before addressed line */
-		if (addr1 != INVALID_ADDR && addr2 != INVALID_ADDR) /* Received 2 address arguments */
+		if (addr2 != INVALID_ADDR) /* Received 2 address arguments */
 		{
 		    puts("Error: This command does not take an address range.");
 		    break;
@@ -725,6 +725,8 @@ int main(int argc, char **argv)
 		    addr1 = addr2 = textBuff.text.pos; /* Use current address */
 		else if (addr2 == INVALID_ADDR) /* Received only one address */
 		    addr2 = addr1; /* Affect only addr1 */
+		else if (addr1 == INVALID_ADDR) /* Received only address two */
+		    addr1 = textBuff.text.pos;
 		if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count)
 		{
 		    inputMode(input, &inputBuff); /* Enter input mode and fill input buffer */
@@ -738,6 +740,8 @@ int main(int argc, char **argv)
 		    addr1 = addr2 = textBuff.text.pos; /* Use current address */
 		else if (addr2 == INVALID_ADDR) /* Received only one address */
 		    addr2 = addr1; /* Affect only addr1 */
+		else if (addr1 == INVALID_ADDR) /* Received only address two */
+		    addr1 = textBuff.text.pos;
 		if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count)
 		    textBuff.delete(&textBuff, addr1, addr2);
 		else
@@ -754,6 +758,8 @@ int main(int argc, char **argv)
 		    puts("Error: This command requires an address range.");
 		    break;
 		}
+		else if (addr1 == INVALID_ADDR) /* Received only address two */
+		    addr1 = textBuff.text.pos;
 		if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count)
 		{
 		    textBuff.join(&textBuff, addr1, addr2);
@@ -780,6 +786,8 @@ int main(int argc, char **argv)
 		    addr1 = addr2 = textBuff.text.pos; /* Use current address */
 		else if (addr2 == INVALID_ADDR) /* Received only one address */
 		    addr2 = addr1; /* Affect only addr1 */
+		else if (addr1 == INVALID_ADDR) /* Received only address two */
+		    addr1 = textBuff.text.pos;
 		if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count)
 		    textBuff.print(&textBuff, addr1, addr2);
 		else
@@ -790,6 +798,8 @@ int main(int argc, char **argv)
 		    addr1 = addr2 = textBuff.text.pos; /* Use current address */
 		else if (addr2 == INVALID_ADDR) /* Received only one address */
 		    addr2 = addr1; /* Affect only addr1 */
+		else if (addr1 == INVALID_ADDR) /* Received only address two */
+		    addr1 = textBuff.text.pos;
 		if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count)
 		    textBuff.list(&textBuff, addr1, addr2);
 		else
@@ -800,6 +810,8 @@ int main(int argc, char **argv)
 		    addr1 = addr2 = textBuff.text.pos; /* Use current address */
 		else if (addr2 == INVALID_ADDR) /* Received only one address */
 		    addr2 = addr1; /* Affect only addr1 */
+		else if (addr1 == INVALID_ADDR) /* Received only address two */
+		    addr1 = textBuff.text.pos;
 		if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count)
 		    textBuff.number(&textBuff, addr1, addr2);
 		else
@@ -810,6 +822,8 @@ int main(int argc, char **argv)
 		    addr1 = addr2 = textBuff.text.pos; /* Use current address */
 		else if (addr2 == INVALID_ADDR) /* Received only one address */
 		    addr2 = addr1; /* Affect only addr1 */
+		else if (addr1 == INVALID_ADDR) /* Received only address two */
+		    addr1 = textBuff.text.pos;
 		if (strlen(param) == 0) /* No third address given */
 		    addr3 = textBuff.text.pos; /* Use current address */
 		else /* Read in addr3 from param */
@@ -818,6 +832,8 @@ int main(int argc, char **argv)
 			addr3 = interpretSpecial(&textBuff, param, NULL);
 		    else if (isdigit(param[0]))
 			addr3 = atoi(param);
+		    else
+			addr3 = INVALID_ADDR;
 		}
 		if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count && addr3 != INVALID_ADDR && (addr3 < addr1 || addr3 > addr2) && addr3 <= (int) textBuff.text.count)
 		{
@@ -845,6 +861,8 @@ int main(int argc, char **argv)
 		    addr1 = addr2 = textBuff.text.pos; /* Use current address */
 		else if (addr2 == INVALID_ADDR) /* Received only one address */
 		    addr2 = addr1; /* Affect only addr1 */
+		else if (addr1 == INVALID_ADDR) /* Received only address two */
+		    addr1 = textBuff.text.pos;
 		if (strlen(param) == 0) /* No third address given */
 		    addr3 = textBuff.text.pos; /* Use current address */
 		else /* Read in addr3 from param */
@@ -853,6 +871,7 @@ int main(int argc, char **argv)
 			addr3 = interpretSpecial(&textBuff, param, NULL);
 		    else if (isdigit(param[0]))
 			addr3 = atoi(param);
+		    else addr3 = INVALID_ADDR;
 		}
 		if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count && addr3 != INVALID_ADDR && (addr3 < addr1 || addr3 > addr2) && addr3 <= (int) textBuff.text.count)
 		{
