@@ -58,7 +58,10 @@ void LinkList_remove(struct LinkList *self)
 {
     struct Node *temp = self->curr->next;
     if (self->tail == self->curr->next)
+    {
 	self->tail = self->curr;
+	self->curr->next = NULL;
+    }
     else
     {
 	self->curr->next = self->curr->next->next;
