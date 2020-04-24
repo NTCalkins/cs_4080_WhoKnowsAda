@@ -71,20 +71,18 @@ void TextBuffer_delete(struct TextBuffer *self, unsigned int line1, unsigned int
 {
     assert(line2 >= line1 && line1 > 0 && line2 <= self->text.count);
     struct Node *pos1, *pos2; /* Positions for deletion */
-    unsigned int temp;
     if (self->text.pos != (line1 - 1))
 	self->text.move(&(self->text), line1 - 1);
-    temp = self->text.pos;
     /* Get positions for deletion */
     pos1 = self->text.curr;
     self->text.move(&(self->text), line2);
     pos2 = self->text.curr->next;
     /* Delete nodes between pos1 and pos2 */
-    self->text.curr = pos1;
-    self->text.pos = temp;
+    self->text.move(&(self->text), line1 - 1);
     while (self->text.curr->next != pos2)
 	self->text.remove(&(self->text));
-    self->text.next(&self->text); /* Set current address to after deleted text */
+    if (self->text.curr->next != NULL)
+	self->text.next(&self->text); /* Set current address to after deleted text */
     self->changesMade = true;
 }
 
@@ -731,6 +729,20 @@ int main(int argc, char **argv)
 		{
 		    inputMode(input, &inputBuff); /* Enter input mode and fill input buffer */
 		    textBuff.change(&textBuff, addr1, addr2, &inputBuff);
+		    command = processSuffix(param); /* Look for a suffix command */
+		    if (command != INVALID_CMD)
+			switch (command)
+			{
+			case 'p':
+			    textBuff.print(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			    break;
+			case 'l':
+			    textBuff.list(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			    break;
+			case 'n':
+			    textBuff.number(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			    break;
+			}
 		}
 		else
 		    puts("Error: Invalid address.");
@@ -743,7 +755,23 @@ int main(int argc, char **argv)
 		else if (addr1 == INVALID_ADDR) /* Received only address two */
 		    addr1 = textBuff.text.pos;
 		if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count)
+		{
 		    textBuff.delete(&textBuff, addr1, addr2);
+		    command = processSuffix(param); /* Look for a suffix command */
+		    if (command != INVALID_CMD)
+			switch (command)
+			{
+			case 'p':
+			    textBuff.print(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			    break;
+			case 'l':
+			    textBuff.list(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			    break;
+			case 'n':
+			    textBuff.number(&textBuff, textBuff.text.pos, textBuff.text.pos);
+			    break;
+			}
+		}
 		else
 		    puts("Error: Invalid address.");
 		break;
@@ -836,23 +864,7 @@ int main(int argc, char **argv)
 			addr3 = INVALID_ADDR;
 		}
 		if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count && addr3 != INVALID_ADDR && (addr3 < addr1 || addr3 > addr2) && addr3 <= (int) textBuff.text.count)
-		{
 		    textBuff.move(&textBuff, addr1, addr2, addr3);
-		    command = processSuffix(param); /* Look for a suffix command */
-		    if (command != INVALID_CMD)
-			switch (command)
-			{
-			case 'p':
-			    textBuff.print(&textBuff, textBuff.text.pos, textBuff.text.pos);
-			    break;
-			case 'l':
-			    textBuff.list(&textBuff, textBuff.text.pos, textBuff.text.pos);
-			    break;
-			case 'n':
-			    textBuff.number(&textBuff, textBuff.text.pos, textBuff.text.pos);
-			    break;
-			}
-		}
 		else
 		    puts("Error: Invalid address.");
 		break;
@@ -874,23 +886,7 @@ int main(int argc, char **argv)
 		    else addr3 = INVALID_ADDR;
 		}
 		if (addr2 >= addr1 && addr1 > 0 && addr2 <= (int) textBuff.text.count && addr3 != INVALID_ADDR && (addr3 < addr1 || addr3 > addr2) && addr3 <= (int) textBuff.text.count)
-		{
 		    textBuff.transfer(&textBuff, addr1, addr2, addr3);
-		    command = processSuffix(param); /* Look for a suffix command */
-		    if (command != INVALID_CMD)
-			switch (command)
-			{
-			case 'p':
-			    textBuff.print(&textBuff, textBuff.text.pos, textBuff.text.pos);
-			    break;
-			case 'l':
-			    textBuff.list(&textBuff, textBuff.text.pos, textBuff.text.pos);
-			    break;
-			case 'n':
-			    textBuff.number(&textBuff, textBuff.text.pos, textBuff.text.pos);
-			    break;
-			}
-		}
 		else
 		    puts("Error: Invalid address.");
 		break;
