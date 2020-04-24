@@ -135,12 +135,10 @@ void TextBuffer_join(struct TextBuffer *self, unsigned int line1, unsigned int l
     if (self->text.pos != line1)
 	self->text.move(&(self->text), line1);
     /* Get positions for range to be merged */
-    temp = self->text.pos;
     pos1 = self->text.curr;
     self->text.move(&(self->text), line2);
     pos2 = self->text.curr->next;
-    self->text.curr = pos1;
-    self->text.pos = temp;
+    self->text.move(&(self->text), line1);
     while (self->text.curr->next != pos2) /* Append and remove each node in range */
     {
 	self->text.curr->append(self->text.curr, self->text.curr->next->get(self->text.curr->next));
