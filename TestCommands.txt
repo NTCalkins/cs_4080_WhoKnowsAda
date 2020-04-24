@@ -24,5 +24,6 @@ Mom's spaghetti
 ;t0
 ,p
 4,8d
+1,3j
 w TestOut.txt
 q
