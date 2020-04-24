@@ -7,14 +7,14 @@ And loathsome canker lives in sweetest bud.
 ,p
 2
 c
-Roses have thorns, and silver fountains mud.
+Roses have thorns, and "silver fountains" mud.
 .
 $
 a
 Sonnet #50
 .
 5m0
-,p
+,l
 a
 wu4 wang4 guo2 chi3
 Never forgetti
@@ -22,7 +22,7 @@ Mom's spaghetti
 .
 -2
 ;t0
-,p
+,n
 4,8d
 1,3j
 w TestOut.txt
