@@ -1,0 +1,28 @@
+a
+No more be grieved at that which thou hast done.
+Roses have thorns, and filvers foutians mud.
+Clouds and eclipses stain both moon and sun,
+And loathsome canker lives in sweetest bud.
+.
+,p
+2
+c
+Roses have thorns, and silver fountains mud.
+.
+$
+a
+Sonnet #50
+.
+5m0
+,p
+a
+wu4 wang4 guo2 chi3
+Never forgetti
+Mom's spaghetti
+.
+-2
+;t0
+,p
+4,8d
+w TestOut.txt
+q
