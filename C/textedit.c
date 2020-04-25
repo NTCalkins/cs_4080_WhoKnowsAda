@@ -650,7 +650,7 @@ int main(int argc, char **argv)
 	if (input[strlen(input) - 1] == '\n') /* Trim the excess newline character */
 	    input[strlen(input) - 1] = '\0';
 	parse(&textBuff, input, &addr1, &addr2, &command, param);
-	if (command == INVALID_CMD && addr1 != INVALID_ADDR) /* Only an address was entered */
+	if (command == INVALID_CMD && addr1 != INVALID_ADDR && addr2 == INVALID_ADDR) /* Only an address was entered */
 	    textBuff.text.move(&(textBuff.text), addr1);
 	else
 	{
