@@ -1,6 +1,6 @@
 /* Double linked list implementation */
-#include "StaticLinkNode.h" /* Use static length strings in node */
-// #include "DynamicLinkNode.h" /* Use dynamic length strings in node */
+// #include "StaticLinkNode.h" /* Use static length strings in node */
+#include "DynamicLinkNode.h" /* Use dynamic length strings in node */
 
 struct LinkList
 {
@@ -113,7 +113,7 @@ void LinkList_move(struct LinkList *self, unsigned int pos)
     self->pos = pos;
 }
 
-inline unsigned int LinkList_size(struct LinkList *self)
+unsigned int LinkList_size(struct LinkList *self)
 {
     return self->count;
 }
