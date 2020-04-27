@@ -1,4 +1,4 @@
-/* Double linked list implementation */
+/* Double linked list implementation designed to be used with the editor */
 // #include "StaticLinkNode.h" /* Use static length strings in node */
 #include "DynamicLinkNode.h" /* Use dynamic length strings in node */
 

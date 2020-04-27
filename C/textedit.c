@@ -1,3 +1,9 @@
+/*
+  Author: Harvey Lin
+  Class: CS4080
+  An implementation of the ed text editor in plain C to assess the design and performance impacts of static length versus dynamic length strings.
+  Supports a select subset of the editors commands as outlined in the GNU/ed manual.
+*/
 #include <stdio.h>
 #include <stdbool.h>
 #include <assert.h>
