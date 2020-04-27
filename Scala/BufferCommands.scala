@@ -1,16 +1,46 @@
 import scala.io.Source
 import scala.collection.mutable.ArrayBuffer
 import scala.io.StdIn.{readLine, readInt}
+import java.nio.file.{ Files, FileSystems }
+import java.io._
 
 class BufferCommands() {
 
+  //DynamicBuffer that stores the user input in an array buffer
+  //of dynamically lengthed stringbuilders
   var buff: DynamicBuffer = new DynamicBuffer()
+
+  //ArrayBuffer to hold input from the user
   var ui: ArrayBuffer[StringBuilder] = ArrayBuffer.empty[StringBuilder]
+
+  //variables to hold the addresses of the current command
   var ad1: Int = 0
   var ad2: Int = -1
   var ad3: Int = -1
+
+  //variables that hold the current command
   var com: Char = 'p'
+
+  //variable to hold the current location in the buffer
   var cur: Int = 0
+
+  //variable to hold the name of the file
+  var defaultFile: String = "text"
+
+  //variable to hold the name of the last non-default file written to
+  var wfile: String = "text"
+
+  //boolean to know if there is a default file set
+  var hasDefault: Boolean = false
+
+  def getDefaultFile() : String = {
+    return defaultFile
+  }
+
+  def setDefaultFile(s: String) {
+    defaultFile = s
+    hasDefault = true
+  }
 
   def isCommand(c: Char) : Boolean = {
     return c match {
@@ -31,10 +61,25 @@ class BufferCommands() {
     }
   }
 
+  def edit() : Boolean = {
+    if (!hasDefault)
+      return false
+    buff.clearBuffer
+    readFile(getDefaultFile)
+    return true
+  }
+
   def readFile(filename: String) {
+    
+    //this gets the contents of filename
     val bufferedSource = Source.fromFile(filename)
+
+    //for each line, read it into the buffer
     for (line <- bufferedSource.getLines)
       buff.append(new StringBuilder(line))
+
+    //put the current location in the buffer at the end
+    setCur(buff.getSize)
   }
 
   def getCur() : Int = {
@@ -75,7 +120,9 @@ class BufferCommands() {
       s.delete(0,1)
       return true
     }
+    //check for a special case in address
     if (s.charAt(0) == ';') {
+      //set ad1 to current and ad2 to the end of thebuffer
       setAd(ad,getCur)
       setAd(ad+1,buff.getTail+1)
       s.delete(0,1)
@@ -83,13 +130,17 @@ class BufferCommands() {
     }
     //move onto processing a single address
     if (s.charAt(0) == '.') {
+      // '.' means that this address should be the 
+      // current location of the buffer
       setAd(ad,getCur);
       s.delete(0,1)
     }
+    //$ means that this address should be the last in the buffer
     else if (s.charAt(0) == '$') {
       setAd(ad,buff.getTail+1);
       s.delete(0,1)
     }
+    //logic to do a positive offset from the current location
     else if (s.charAt(0) == '+') {
       var addition = 1;
       s.delete(0,1)
@@ -104,6 +155,7 @@ class BufferCommands() {
         setAd(ad, getCur + s.substring(0,i).toInt)
       s.delete(0,i);
     }
+    //logic to do a negative offset from the current location
     else if (s.charAt(0) == '-') {
       var subtraction = 1;
       s.delete(0,1)
@@ -118,6 +170,7 @@ class BufferCommands() {
         setAd(ad, getCur - s.substring(0,i).toInt)
       s.delete(0,i);
     }
+    //logic to take a digit string from the address
     else if (s.charAt(0).isDigit) {
       var i = 0
       while (i < s.length() && s.charAt(i).isDigit) {
@@ -127,6 +180,7 @@ class BufferCommands() {
       setAd(ad, s.substring(0,i).toInt)
       s.delete(0,i)
     }
+    //otherwise, set address to current value
     else
       setAd(ad, getCur)
     return true
@@ -162,6 +216,10 @@ class BufferCommands() {
 
   def getLines(ad1: Int, ad2: Int) : Boolean = {
     var i = ad1
+    if (ad2 == -1) {
+      ui.append(buff.getLine(ad1))
+      return true
+    }
     while (i <= ad2) {
       ui.append(buff.getLine(i))
       i += 1
@@ -192,8 +250,33 @@ class BufferCommands() {
   def transfer(ad1: Int, ad2: Int, ad3: Int) : Boolean = {
     getLines(ad1,ad2)
     buff.insertAtLoc(ad3,ui)
-    setCur(ad2)
+    setCur(ad3+(ad2-ad1+1))
     resetUserInput()
+    return true
+  }
+
+  def move(ad1: Int, ad2: Int, ad3: Int) : Boolean = {
+    if ( ad3 <= ad2 && ad3 >= ad1) {
+      return false
+    }
+    else {
+      transfer(ad1,ad2,ad3)
+      if (ad3 > ad1 && ad2 != -1) {
+        delete(ad1,ad2)
+        setCur(ad3)
+      }
+      else {
+        if (ad2 == -1) {
+          delete(ad1+1,-1)
+          setCur(ad3+1)
+        }
+        else {
+          val diff = ad2-ad1+1
+          delete(ad1+diff,ad2+diff)
+          setCur(ad3+diff)
+        }
+      }
+    }
     return true
   }
 
@@ -252,13 +335,38 @@ class BufferCommands() {
   }
 
   def join(ad1: Int, ad2: Int) : Boolean = {
-    buff.joinLines(ad1,ad2)
-    delete(ad2,-1)
+    var i = ad1
+    while (i < ad2) {
+      buff.joinLines(ad1,ad1+1)
+      delete(ad1+1,-1)
+      i += 1
+    }
     setCur(ad1)
     return true
   }
 
+  def write(ad1: Int, ad2: Int, wfile: String) : Boolean = {
+    //check if the files exists, if it doesn't then make it.
+    var file = new File(wfile)
+    if (!file.exists)
+      println("creating a new file")
+      file.createNewFile
+
+    val fw = new FileWriter(file, false)
+    var i = ad1
+    for (i <- ad1 to ad2) {
+      println("writing to file")
+      fw.write(buff.getLine(i).toString + "\n")
+    }
+    fw.close
+    return true
+
+
+
+  }
+
   def processCommand() {
+
     if (com == 'a')
       append(getAd(1))
     
@@ -282,52 +390,118 @@ class BufferCommands() {
 
     else if (com == 't')
       transfer(getAd(1), getAd(2), getAd(3))
+    
+    else if (com == 'm')
+      move(getAd(1), getAd(2), getAd(3))
+
+    else if (com == 'e')
+      edit()
+
+    else if (com == 'w')
+      write(getAd(1),getAd(2), wfile)
   }
 
 }
   
 object BufferCommands {
+
   def main(args: Array[String]) = {
     val bc = new BufferCommands
-    var filename = "text"
-    if (args.length > 0)
-      filename = args(0)
+    var wfile : String = ""
 
-    println(filename)
+    //check if the user provided a filename
+    if (args.length > 0) {
+
+      //set the filename to default
+      bc.setDefaultFile(args(0))
+      bc.hasDefault = true
+      println("set " + args(0) + " to default file")
+
+      //if the file exists, read it in.
+      if (Files.exists(FileSystems.getDefault().getPath(bc.getDefaultFile))) {
+        bc.readFile(bc.getDefaultFile)
+        println(args(0) + " exists, read into buffer")
+      }
+    }
+    //continue while the user doesn't command q
     while (bc.getCom != 'q') {
 
+      //set the addresses to default, and default command to print
       bc.setAd(1,-1)
       bc.setAd(2,-1)
       bc.setAd(3,-1)
       bc.setCom('p')
 
-      var userString = bc.getUserCommand
-      bc.setCom('p')
 
+      //get the command string to be parsed
+      var userString = bc.getUserCommand
+
+      //if the first character isn't a command, extract an address
       if (!bc.isCommand(userString.charAt(0))) {
         bc.extractAddress(1,userString)
       }
 
+      //otherwise, use the current address as the destination, except for w
       else {
-        bc.setAd(1,bc.getCur)
+        bc.extractCommand(userString)
+        //no addresses for 'w' means that the default is from 1 to $
+        if (bc.getCom == 'w') {
+          bc.setAd(1,1)
+          bc.setAd(2,bc.buff.getTail+1)
+        }
+        else {
+          bc.setAd(1,bc.getCur)
+        }
       }
+
+      //if the command is w or e, we might need a filename
+      if (bc.getCom == 'w' || bc.getCom == 'e') {
+        //indication there is a filename
+        if (userString.length() > 0) {
+          //get ride of the whitespace
+          userString.delete(0,1)
+          //save the string
+          bc.wfile = userString.toString
+          //if you're trying to edit or there is no default yet, set the default
+          if (bc.getCom == 'e' || !bc.hasDefault) {
+            bc.setDefaultFile(userString.toString())
+            bc.hasDefault = true
+          }
+        }
+        //case for no file name
+        else {
+          if (!bc.hasDefault) {
+            println("NO DEFAULT FILE: CANNOT WRITE OR EDIT")
+          }
+          else {
+            bc.wfile = bc.getDefaultFile
+          }
+        }
+      }
+
       println("First address is: " + bc.getAd(1))
 
+      //check and see if there is a second address, otherwise just move on
       if (userString.length() > 0 && userString.charAt(0) == ',') {
         userString.delete(0,1)
         bc.extractAddress(2,userString)
       }
       println("Second address is: " +bc.getAd(2))
-
-      if (userString.length() > 0 && bc.isCommand(userString.charAt(0))) {
+      
+      //get the command from the user, otherwise it will just print
+      if (bc.getCom != 'w' && bc.getCom != 'e' && userString.length() > 0 && bc.isCommand(userString.charAt(0))) {
         bc.extractCommand(userString)
       }
-      if (userString.length() > 0) {
+
+      //Check for a third address
+      if (userString.length() > 0 && userString.charAt(0) != ' ') {
         bc.extractAddress(3,userString)
       }
+      //otherwise, use the current address of the bc
       else {
         bc.setAd(3,bc.getCur)
       }
+      //check for a filename
       println("Third address is: " + bc.getAd(3))
       println("Operation is: " + bc.getCom)
       bc.processCommand
