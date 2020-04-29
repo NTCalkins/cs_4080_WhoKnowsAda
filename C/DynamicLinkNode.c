@@ -1,5 +1,4 @@
 /* Node that uses a dynamic length string implementation */
-#pragma once
 #include "DynamicString.h"
 
 struct Node
