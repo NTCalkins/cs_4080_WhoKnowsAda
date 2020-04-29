@@ -15,5 +15,5 @@ unsigned int LinkList_currPos(struct LinkList*); /* Return position of current e
 void LinkList_move(struct LinkList*, unsigned int); /* Move to specified position */
 unsigned int LinkList_size(struct LinkList*); /* Return current size of list */
 
-struct LinkList makeList(); /* Initialize a LinkList */
+struct LinkList makeList(void); /* Initialize a LinkList */
 void deleteList(struct LinkList*); /* Clean up a LinkList */
