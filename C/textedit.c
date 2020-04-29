@@ -137,7 +137,6 @@ void TextBuffer_join(struct TextBuffer *self, unsigned int line1, unsigned int l
 {
     assert(line2 > line1 && line1 > 0 && line2 <= self->text.count);
     struct Node *pos1, *pos2;
-    unsigned int temp;
     if (self->text.pos != line1)
 	self->text.move(&(self->text), line1);
     /* Get positions for range to be merged */
