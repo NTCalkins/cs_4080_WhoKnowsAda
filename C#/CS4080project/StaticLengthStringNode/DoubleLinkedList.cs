@@ -15,7 +15,7 @@ namespace StaticLinkedListImplementation
     internal class StaticStringLinkNode
     {
         internal string memory;
-        internal int MaxLength = 256;
+        internal int maxCapacity = 255;
 
         internal StaticStringLinkNode prev;
         internal StaticStringLinkNode next;
@@ -23,17 +23,10 @@ namespace StaticLinkedListImplementation
         //Dynamic lenght string node
         public StaticStringLinkNode(string input)
         {
-            char[] ca = new char[MaxLength];
+            StringBuilder stringBuilder = new StringBuilder(maxCapacity, maxCapacity); //initial size is 255
+            stringBuilder.Append(input);
 
-            if (input.Length > MaxLength)
-            {
-                Console.WriteLine("Error excess max string length");
-            }
-            else
-            {
-                ca = input.ToCharArray();
-                memory = new string(ca);
-            }
+            memory = stringBuilder.ToString();
 
             prev = null;
             next = null;
@@ -70,6 +63,7 @@ namespace StaticLinkedListImplementation
             if (doubleLinkedList.head != null)
             {
                 doubleLinkedList.head.prev = newNode;
+                index++;
             }
             doubleLinkedList.head = newNode;
         }
@@ -125,6 +119,7 @@ namespace StaticLinkedListImplementation
         internal void deleteNodeByLine( DoubleLinkedList2 doubleLinkedList, uint lineNumber)
         {
             StaticStringLinkNode temp_head = doubleLinkedList.head; //this is the head of linklist
+
             if (temp_head != null && lineNumber.Equals(1)) //remove first node
             {
                 doubleLinkedList.head = temp_head.next; // Change first node to second node

@@ -9,17 +9,15 @@ namespace CS4080project.Parser
 		internal uint line1;
 		internal uint line2;
 		internal uint line3;
-		internal uint savedIndex;
-		internal uint numberOfLine;
+		internal uint currentAddress;
 		internal string para;
 		internal char command;
 		internal bool accept;
 
-		public unsafe Parser(String input, uint texbufferIndex, uint numberOfLine, uint currentAddress)
+		public unsafe Parser(String input, uint currentAddress)
 		{
-			this.numberOfLine = numberOfLine;
-			this.savedIndex = currentAddress;
-			decode(input, texbufferIndex);
+			this.currentAddress = currentAddress;
+			decode(input, currentAddress);
 		}
 
 		/* Parse the user inputted line */
@@ -33,7 +31,6 @@ namespace CS4080project.Parser
 			String empty = string.Empty;
 				
 			int temp = 0; // new location	
-			int* tempPointer = &temp;
 			
 
 			while (index < input.Length)
@@ -44,14 +41,14 @@ namespace CS4080project.Parser
 					line1 = (uint)Char.GetNumericValue(input[index]);
 
 					while (Char.IsDigit(input[index]))
-					{
-						if ((input.Length - 1) == index)
-						{
-							return;
-						}
+					{					
 						empty += input[index];
 						++index;
-						//Console.Write("Input length is " + input.Length +" index is " + index);
+						if ((input.Length) == index)
+						{
+							line1 = uint.Parse(empty);
+							return;
+						}
 					}
 
 
@@ -105,7 +102,14 @@ namespace CS4080project.Parser
 				{
 					line2 = 0;
 					line1 = (uint)interpretSpecial(input.Substring(index, (input.Length - index)), &temp);
+
+					
 					index += temp;
+
+					if ((input.Length) == index)
+					{
+						return;
+					}
 
 					if (input[index] == ',' || input[index] == ';') /* A second address is given */
 					{
@@ -142,6 +146,10 @@ namespace CS4080project.Parser
 				{
 					line1 = 1;
 					++index;
+					if ((input.Length) == index)
+					{
+						return;
+					}
 
 					if (Char.IsDigit(input[index])) /* addr2 is numerically defined */
 					{
@@ -177,6 +185,11 @@ namespace CS4080project.Parser
 				{
 					line1 = texbufferIndex;
 					++index;
+					if ((input.Length) == index)
+					{
+						return;
+					}
+
 					if (Char.IsDigit(input[index]))
 					{
 						empty = string.Empty;
@@ -210,6 +223,7 @@ namespace CS4080project.Parser
 				{
 					command = input[index];
 					++index;
+
 					accept = true;
 
 					int startIndex = index;
@@ -289,29 +303,28 @@ namespace CS4080project.Parser
         characters were read as offset. */
 		public unsafe uint interpretSpecial(string s, int* offset)
 		{
-			uint retVal;
+			uint retVal = 0;
 			String empty = string.Empty;
-
 
 			switch (s[0])
 			{
 				case '.':
 					if (offset != null)    // if offset is not null than offset is 1
 						*offset = 1;
-					return savedIndex;
+					return currentAddress;
 				case '$':
 					if (offset != null)
 					{
 						*offset = 1; 
 					}
 
-					return numberOfLine;
+					return currentAddress;
 				case '+':				
 					if (Char.IsDigit(s[1])) //if next character is number 
 					{
 
 						empty += s[1];
-						retVal = savedIndex - uint.Parse(empty);
+						retVal = (currentAddress + uint.Parse(empty) );
 
 						if (offset != null)
 						{
@@ -326,7 +339,8 @@ namespace CS4080project.Parser
 					{
 						if (offset != null) // if offset is not null than offset is 1
 							*offset = 1;
-						return savedIndex + 1;
+						
+						return currentAddress + 1;
 					}
 				case '-':
 					if (Char.IsDigit(s[1])) //if next character is number
@@ -334,11 +348,17 @@ namespace CS4080project.Parser
 						empty = string.Empty;						
 						empty += s[1];
 
-						retVal = savedIndex - uint.Parse(empty);
+						retVal = (currentAddress - uint.Parse(empty) );				
 
 						if (offset != null)
 						{
 							*offset = 2;
+
+							if (s.Length <= *offset)
+							{
+								return retVal;
+							}
+
 							while (Char.IsDigit(s[*offset]))
 							++offset;
 						}
@@ -348,7 +368,7 @@ namespace CS4080project.Parser
 					{
 						if (offset != null) // if offset is not null than offset is 1
 							*offset = 1;
-						return savedIndex - 1;
+						return currentAddress - 1;
 					}
 				default:
 					if (offset != null) // if offset is not null than offset is 0

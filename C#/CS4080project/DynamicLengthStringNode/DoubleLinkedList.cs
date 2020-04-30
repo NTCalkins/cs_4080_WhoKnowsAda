@@ -15,7 +15,8 @@ namespace DynamicLinkedListImplementation
     internal class DynamicStringLinkNode
     {
         internal string memory;
-        internal int MaxLength = 10;
+        internal int capacity = 10;
+        internal int maxCapacity = 1024;
 
         internal DynamicStringLinkNode prev;
         internal DynamicStringLinkNode next;
@@ -23,22 +24,10 @@ namespace DynamicLinkedListImplementation
         //Dynamic lenght string node
         public DynamicStringLinkNode(string input)
         {
-            char[] ca = new char[MaxLength];
+            StringBuilder stringBuilder = new StringBuilder(capacity, maxCapacity); //initial size is 10
+            stringBuilder.Append(input);
 
-            // If input length is greater than the max length we
-            // will double the lenght
-            if (input.Length > MaxLength)
-            {
-                int newSize = MaxLength * 2;
-
-                while (newSize < MaxLength)
-                {
-                    newSize *= 2;
-                }
-                ca = new char[newSize];
-            }
-            ca = input.ToCharArray();
-            memory = new string(ca);
+            memory = stringBuilder.ToString();
 
             prev = null;
             next = null;
@@ -74,6 +63,7 @@ namespace DynamicLinkedListImplementation
             if (doubleLinkedList.head != null)
             {
                 doubleLinkedList.head.prev = newNode;
+                index++;
             }
             doubleLinkedList.head = newNode;
         }
@@ -146,9 +136,9 @@ namespace DynamicLinkedListImplementation
             {
                 return;
             }
-            if (temp_head.next != null) // if current node has next value then set next node's pinter to one before current node.
+            if (temp_head.next != null) // if current node has next value then set next node's pointer to one before current node.
             {
-                temp_head.next.prev = temp_head.prev;
+                temp_head.next.prev = temp_head.prev;               
             }
             if (temp_head.prev != null) // if current node prev has value then set last node point to one after current node.
             {
@@ -171,7 +161,7 @@ namespace DynamicLinkedListImplementation
                     numberLine++;
                     n = n.next;
                 }
-                Console.WriteLine("Total lines " + index);
+
                 Console.WriteLine("*********************");
                 numberLine = 1;
             }
