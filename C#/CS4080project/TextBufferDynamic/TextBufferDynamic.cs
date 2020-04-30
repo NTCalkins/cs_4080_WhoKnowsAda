@@ -666,7 +666,7 @@ namespace CS4080project.TextBufferDynamic
                 if (inputName != " ")
                 {
                     //Open the file
-                    fileName = new FileInfo(inputName + ".txt");
+                    fileName = new FileInfo(inputName);
                     //Get the StreamReader
                     sr = fileName.OpenText();
                 }

@@ -4,6 +4,7 @@ using CS4080project.TextBufferStatic;
 using DynamicLinkedListImplementation;
 using StaticLinkedListImplementation;
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -46,6 +47,9 @@ namespace LinkedListImplementation
             uint line1 = 0;
             uint line2 = 0;
             uint line3 = 0;
+
+            //Stopwatch to test execution time
+            Stopwatch stopWatch = Stopwatch.StartNew();
 
             Parser myParser = new Parser("", 0);
             TextBufferDynamic tempTextBuffer = new TextBufferDynamic(); //Create temp buffer                   
@@ -205,8 +209,10 @@ namespace LinkedListImplementation
                             break;
 
                         case 'e':
-
+                            stopWatch.Start();
                             tempTextBuffer.edit(myParser.para);
+                            stopWatch.Stop();
+                            Console.WriteLine("File load time is " +stopWatch.ElapsedMilliseconds + "ms");
                             headOfList.head = null;
 
                             break;
@@ -233,6 +239,9 @@ namespace LinkedListImplementation
             uint line1 = 0;
             uint line2 = 0;
             uint line3 = 0;
+
+            //Stopwatch to test execution time
+            Stopwatch stopWatch = Stopwatch.StartNew();
 
             Parser myParser = new Parser("", 0);
             TextBufferStatic tempTextBuffer = new TextBufferStatic(); //Create temp buffer                   
@@ -393,8 +402,10 @@ namespace LinkedListImplementation
 
                         case 'e':
 
+                            stopWatch.Start();
                             tempTextBuffer.edit(myParser.para);
-                            headOfList.head = null;
+                            stopWatch.Stop();
+                            Console.WriteLine("File load time is " + stopWatch.ElapsedMilliseconds + "ms");
 
                             break;
 
