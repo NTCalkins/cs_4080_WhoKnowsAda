@@ -32,20 +32,11 @@ namespace StaticLinkedListImplementation
             next = null;
         }
 
-        public void copy (string input)
-        {
-            memory = input;
-        }
+        public void Copy(string input) { memory = input; }
 
-        public void append (string input )
-        {
-            memory = memory + input; 
-        }
+        public void Append(string input) { memory = memory + input; }
 
-        public void insert(int position, string input)
-        {
-            memory.Insert(position, input);
-        }
+        public void Insert(int position, string input) { memory.Insert(position, input); }
     }
 
 
@@ -116,7 +107,7 @@ namespace StaticLinkedListImplementation
         }
        
 
-        internal void deleteNodeByLine( DoubleLinkedList2 doubleLinkedList, uint lineNumber)
+        internal void DeleteNodeByLine( DoubleLinkedList2 doubleLinkedList, uint lineNumber)
         {
             StaticStringLinkNode temp_head = doubleLinkedList.head; //this is the head of linklist
 
@@ -155,15 +146,12 @@ namespace StaticLinkedListImplementation
             {
                 StaticStringLinkNode n = doubleLinkedList.head;
                 int numberLine = 1;
-                Console.WriteLine("*********************");
                 while (n != null)
                 {
                     Console.WriteLine(numberLine + " >> " + n.memory + " ");
                     numberLine++;
                     n = n.next;
                 }
-                Console.WriteLine("Total lines " + index);
-                Console.WriteLine("*********************");
                 numberLine = 1;
             }
             else if (token == 1)
@@ -181,7 +169,7 @@ namespace StaticLinkedListImplementation
 
                 for(int i = 0; i < (line2 - line1 + 1); i++)
                 {
-                    Console.WriteLine(numberLine + " >> " + n.memory + " $");
+                    Console.WriteLine(numberLine + "> " + n.memory + " $");
                     numberLine++;
                     n = n.next;
                 }
@@ -203,7 +191,7 @@ namespace StaticLinkedListImplementation
                 for (int i = 0; i < (line2 - line1 + 1)  ; i++)
                 {
 
-                    Console.WriteLine(">> " + numberLine +"\t" + n.memory);
+                    Console.WriteLine("> " + numberLine +"\t" + n.memory);
                     numberLine++;
                     n = n.next;
                 }
@@ -225,7 +213,7 @@ namespace StaticLinkedListImplementation
                 for (int i = 0; i < (line2 - line1 + 1); i++)
                 {
 
-                    Console.WriteLine(">> " + n.memory);
+                    Console.WriteLine("> " + n.memory);
                     numberLine++;
                     n = n.next;
                 }
@@ -233,14 +221,8 @@ namespace StaticLinkedListImplementation
 
         }
 
-        public uint getIndex( )
-        {
-            return index;
-        }
+        public uint GetIndex( ) { return index; }
 
-        public void resetIndex()
-        {
-            index = 0;
-        }
+        public void ResetIndex( ) { index = 0; }
     }
 }

@@ -56,9 +56,9 @@ namespace LinkedListImplementation
             doublylinked inputList = new doublylinked();  // My text buffer
             DoubleLinkedList headOfList = new DoubleLinkedList(); //First node
 
-            while (!input.Equals("quit", StringComparison.InvariantCultureIgnoreCase))
+            while (!input.Equals("q", StringComparison.InvariantCultureIgnoreCase))
             {
-                inputList.resetIndex();
+                inputList.ResetIndex();
                 Console.Write("");
                 input = Console.ReadLine(); //Read input string
                 input = input.Replace(" ", ""); //remove space between words
@@ -99,10 +99,10 @@ namespace LinkedListImplementation
 
                                 if (input[0] == '.')
                                 {
-                                    uint totalLine = inputList.getIndex();
+                                    uint totalLine = inputList.GetIndex();
                                     unsafe
                                     {
-                                        tempTextBuffer.append(line1, headOfList, totalLine, &currentAddress);
+                                        tempTextBuffer.Append(line1, headOfList, totalLine, &currentAddress);
                                     }
                                     headOfList.head = null;
 
@@ -121,10 +121,10 @@ namespace LinkedListImplementation
 
                                 if (input[0] == '.')
                                 {
-                                    uint totalLine = inputList.getIndex();
+                                    uint totalLine = inputList.GetIndex();
                                     unsafe
                                     {
-                                        tempTextBuffer.change(line1, line2, headOfList, totalLine, &currentAddress);
+                                        tempTextBuffer.Change(line1, line2, headOfList, totalLine, &currentAddress);
                                     }
 
                                     headOfList.head = null;
@@ -140,7 +140,7 @@ namespace LinkedListImplementation
 
                             unsafe
                             {
-                                tempTextBuffer.delete(line1, line2, &currentAddress);
+                                tempTextBuffer.Delete(line1, line2, &currentAddress);
                             }
                             headOfList.head = null;
 
@@ -149,7 +149,7 @@ namespace LinkedListImplementation
                         case 'j':
                             unsafe
                             {
-                                tempTextBuffer.join(line1, line2, &currentAddress);
+                                tempTextBuffer.Join(line1, line2, &currentAddress);
                             }
                             headOfList.head = null;
 
@@ -158,7 +158,7 @@ namespace LinkedListImplementation
                         case 'l':
                             unsafe
                             {
-                                tempTextBuffer.list(line1, line2, &currentAddress);
+                                tempTextBuffer.List(line1, line2, &currentAddress);
                             }
                             headOfList.head = null;
 
@@ -167,7 +167,7 @@ namespace LinkedListImplementation
                         case 'm':
                             unsafe
                             {
-                                tempTextBuffer.move(line1, line2, line3, &currentAddress);
+                                tempTextBuffer.Move(line1, line2, line3, &currentAddress);
                             }
                             headOfList.head = null;
 
@@ -186,7 +186,7 @@ namespace LinkedListImplementation
 
                             if (line1 != 0 && line2 != 0)
                             {
-                                tempTextBuffer.printLine(line1, line2, headOfList);
+                                tempTextBuffer.PrintLine(line1, line2, headOfList);
                                 headOfList.head = null;
                             }
 
@@ -195,7 +195,7 @@ namespace LinkedListImplementation
                         case 't':
                             unsafe
                             {
-                                tempTextBuffer.transfer(line1, line2, line3, &currentAddress);
+                                tempTextBuffer.Transfer(line1, line2, line3, &currentAddress);
                             }
                             headOfList.head = null;
 
@@ -203,14 +203,14 @@ namespace LinkedListImplementation
 
                         case 'w':
 
-                            tempTextBuffer.write(myParser.para);
+                            tempTextBuffer.Write(myParser.para);
                             headOfList.head = null;
 
                             break;
 
                         case 'e':
                             stopWatch.Start();
-                            tempTextBuffer.edit(myParser.para);
+                            tempTextBuffer.Edit(myParser.para);
                             stopWatch.Stop();
                             Console.WriteLine("File load time is " +stopWatch.ElapsedMilliseconds + "ms");
                             headOfList.head = null;
@@ -248,9 +248,9 @@ namespace LinkedListImplementation
             doublylinked2 inputList = new doublylinked2();  // My text buffer
             DoubleLinkedList2 headOfList = new DoubleLinkedList2(); //First node
 
-            while (!input.Equals("quit", StringComparison.InvariantCultureIgnoreCase))
+            while (!input.Equals("q", StringComparison.InvariantCultureIgnoreCase))
             {
-                inputList.resetIndex();
+                inputList.ResetIndex();
                 Console.Write("");
                 input = Console.ReadLine(); //Read input string
                 input = input.Replace(" ", ""); //remove space between words
@@ -291,10 +291,10 @@ namespace LinkedListImplementation
 
                                 if (input[0] == '.')
                                 {
-                                    uint totalLine = inputList.getIndex();
+                                    uint totalLine = inputList.GetIndex();
                                     unsafe
                                     {
-                                        tempTextBuffer.append(line1, headOfList, totalLine, &currentAddress);
+                                        tempTextBuffer.Append(line1, headOfList, totalLine, &currentAddress);
                                     }
                                     headOfList.head = null;
 
@@ -313,10 +313,10 @@ namespace LinkedListImplementation
 
                                 if (input[0] == '.')
                                 {
-                                    uint totalLine = inputList.getIndex();
+                                    uint totalLine = inputList.GetIndex();
                                     unsafe
                                     {
-                                        tempTextBuffer.change(line1, line2, headOfList, totalLine, &currentAddress);
+                                        tempTextBuffer.Change(line1, line2, headOfList, totalLine, &currentAddress);
                                     }
 
                                     headOfList.head = null;
@@ -332,7 +332,7 @@ namespace LinkedListImplementation
 
                             unsafe
                             {
-                                tempTextBuffer.delete(line1, line2, &currentAddress);
+                                tempTextBuffer.Delete(line1, line2, &currentAddress);
                             }
                             headOfList.head = null;
 
@@ -341,7 +341,7 @@ namespace LinkedListImplementation
                         case 'j':
                             unsafe
                             {
-                                tempTextBuffer.join(line1, line2, &currentAddress);
+                                tempTextBuffer.Join(line1, line2, &currentAddress);
                             }
                             headOfList.head = null;
 
@@ -350,7 +350,7 @@ namespace LinkedListImplementation
                         case 'l':
                             unsafe
                             {
-                                tempTextBuffer.list(line1, line2, &currentAddress);
+                                tempTextBuffer.List(line1, line2, &currentAddress);
                             }
                             headOfList.head = null;
 
@@ -359,7 +359,7 @@ namespace LinkedListImplementation
                         case 'm':
                             unsafe
                             {
-                                tempTextBuffer.move(line1, line2, line3, &currentAddress);
+                                tempTextBuffer.Move(line1, line2, line3, &currentAddress);
                             }
                             headOfList.head = null;
 
@@ -368,7 +368,7 @@ namespace LinkedListImplementation
                         case 'n':
                             unsafe
                             {
-                                tempTextBuffer.number(line1, line2, &currentAddress);
+                                tempTextBuffer.Number(line1, line2, &currentAddress);
                             }
                             headOfList.head = null;
 
@@ -387,7 +387,7 @@ namespace LinkedListImplementation
                         case 't':
                             unsafe
                             {
-                                tempTextBuffer.transfer(line1, line2, line3, &currentAddress);
+                                tempTextBuffer.Transfer(line1, line2, line3, &currentAddress);
                             }
                             headOfList.head = null;
 
@@ -395,7 +395,7 @@ namespace LinkedListImplementation
 
                         case 'w':
 
-                            tempTextBuffer.write(myParser.para);
+                            tempTextBuffer.Write(myParser.para);
                             headOfList.head = null;
 
                             break;
@@ -403,7 +403,7 @@ namespace LinkedListImplementation
                         case 'e':
 
                             stopWatch.Start();
-                            tempTextBuffer.edit(myParser.para);
+                            tempTextBuffer.Edit(myParser.para);
                             stopWatch.Stop();
                             Console.WriteLine("File load time is " + stopWatch.ElapsedMilliseconds + "ms");
 

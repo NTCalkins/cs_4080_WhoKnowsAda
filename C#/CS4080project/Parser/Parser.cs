@@ -27,7 +27,6 @@ namespace CS4080project.Parser
 			int index = 0;
 			
 			//uint temp2 = 0;
-			String number;
 			String empty = string.Empty;
 				
 			int temp = 0; // new location	
@@ -85,9 +84,9 @@ namespace CS4080project.Parser
 								line2 = uint.Parse(empty);
 							}
 						}
-						else if (isSpecial(input[index])) /* Special character for addr2 */
+						else if (IsSpecial(input[index])) /* Special character for addr2 */
 						{
-							line2 = (uint) interpretSpecial(input.Substring(index, (input.Length - index) ), &temp);
+							line2 = (uint) InterpretSpecial(input.Substring(index, (input.Length - index) ), &temp);
 							index += temp;
 						}
 
@@ -98,10 +97,10 @@ namespace CS4080project.Parser
 						}
 					}
 				}
-				else if (isSpecial(input[index])) /* Special character for addr1 */
+				else if (IsSpecial(input[index])) /* Special character for addr1 */
 				{
 					line2 = 0;
-					line1 = (uint)interpretSpecial(input.Substring(index, (input.Length - index)), &temp);
+					line1 = (uint)InterpretSpecial(input.Substring(index, (input.Length - index)), &temp);
 
 					
 					index += temp;
@@ -129,9 +128,9 @@ namespace CS4080project.Parser
 								line2 = uint.Parse(empty);
 							}
 						}
-						else if (isSpecial(input[index])) /* Special character for addr2 */
+						else if (IsSpecial(input[index])) /* Special character for addr2 */
 						{
-							line2 = (uint)interpretSpecial(input.Substring(index, (input.Length - index)), &temp);
+							line2 = (uint)InterpretSpecial(input.Substring(index, (input.Length - index)), &temp);
 							index += temp;
 						}
 						else /* Read input as addr2 */
@@ -171,9 +170,9 @@ namespace CS4080project.Parser
 							line2 = uint.Parse(empty);
 						}
 					}
-					else if (isSpecial(input[index])) /* addr2 is defined by a special character */
+					else if (IsSpecial(input[index])) /* addr2 is defined by a special character */
 					{
-						line2 = (uint)interpretSpecial(input.Substring(index, (input.Length - index)), &temp);
+						line2 = (uint)InterpretSpecial(input.Substring(index, (input.Length - index)), &temp);
 						index += temp;
 					}
 
@@ -210,16 +209,16 @@ namespace CS4080project.Parser
 							line2 = uint.Parse(empty);
 						}
 					}
-					else if (isSpecial(input[index]))
+					else if (IsSpecial(input[index]))
 					{
-						line2 = (uint)interpretSpecial(input.Substring(index, (input.Length - index)), &temp);
+						line2 = (uint)InterpretSpecial(input.Substring(index, (input.Length - index)), &temp);
 						index += temp;
 					}
 
 					else
 						line2 = texbufferIndex;
 				}
-				else if (isCommand(input[index])) /* Current token is a command */
+				else if (IsCommand(input[index])) /* Current token is a command */
 				{
 					command = input[index];
 					++index;
@@ -260,7 +259,7 @@ namespace CS4080project.Parser
 		}
 
 		/* Return true if the character has a special meaning when passed as an argument */
-		public bool isSpecial(char c)
+		public bool IsSpecial(char c)
 		{
 			switch (c)
 			{
@@ -275,7 +274,7 @@ namespace CS4080project.Parser
 		}
 
 		/* Return true if the character is a valid command */
-		public bool isCommand(char c)
+		public bool IsCommand(char c)
 		{
 			switch (c)
 			{
@@ -301,7 +300,7 @@ namespace CS4080project.Parser
 		/* Interpret the value of the special substring relative to the buffer.
         Does not include the special characters ',' and ';'. Returns how many
         characters were read as offset. */
-		public unsafe uint interpretSpecial(string s, int* offset)
+		public unsafe uint InterpretSpecial(string s, int* offset)
 		{
 			uint retVal = 0;
 			String empty = string.Empty;

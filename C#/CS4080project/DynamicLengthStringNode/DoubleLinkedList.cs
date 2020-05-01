@@ -5,8 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace DynamicLinkedListImplementation
-{
-    
+{   
     internal class DoubleLinkedList
     {
         internal DynamicStringLinkNode head;
@@ -33,22 +32,12 @@ namespace DynamicLinkedListImplementation
             next = null;
         }
 
-        public void copy (string input)
-        {
-            memory = input;
-        }
+        public void Copy (string input) { memory = input; }
 
-        public void append (string input )
-        {
-            memory = memory + input; 
-        }
+        public void Append (string input ) { memory = memory + input; }
 
-        public void insert(int position, string input)
-        {
-            memory.Insert(position, input);
-        }
+        public void Insert(int position, string input) { memory.Insert(position, input); }
     }
-
 
     internal class doublylinked
     {
@@ -116,7 +105,7 @@ namespace DynamicLinkedListImplementation
         }
        
 
-        internal void deleteNodeByLine( DoubleLinkedList doubleLinkedList, uint lineNumber)
+        internal void DeleteNodeByLine( DoubleLinkedList doubleLinkedList, uint lineNumber)
         {
             DynamicStringLinkNode temp_head = doubleLinkedList.head; //this is the head of linklist
             if (temp_head != null && lineNumber.Equals(1)) //remove first node
@@ -154,15 +143,12 @@ namespace DynamicLinkedListImplementation
             {
                 DynamicStringLinkNode n = doubleLinkedList.head;
                 int numberLine = 1;
-                Console.WriteLine("*********************");
                 while (n != null)
                 {
                     Console.WriteLine(numberLine + " >> " + n.memory + " ");
                     numberLine++;
                     n = n.next;
                 }
-
-                Console.WriteLine("*********************");
                 numberLine = 1;
             }
             else if (token == 1)
@@ -180,7 +166,7 @@ namespace DynamicLinkedListImplementation
 
                 for(int i = 0; i < (line2 - line1 + 1); i++)
                 {
-                    Console.WriteLine(numberLine + " >> " + n.memory + " $");
+                    Console.WriteLine(numberLine + " > " + n.memory + " $");
                     numberLine++;
                     n = n.next;
                 }
@@ -202,7 +188,7 @@ namespace DynamicLinkedListImplementation
                 for (int i = 0; i < (line2 - line1 + 1)  ; i++)
                 {
 
-                    Console.WriteLine(">> " + numberLine +"\t" + n.memory);
+                    Console.WriteLine("> " + numberLine +"\t" + n.memory);
                     numberLine++;
                     n = n.next;
                 }
@@ -224,7 +210,7 @@ namespace DynamicLinkedListImplementation
                 for (int i = 0; i < (line2 - line1 + 1); i++)
                 {
 
-                    Console.WriteLine(">> " + n.memory);
+                    Console.WriteLine("> " + n.memory);
                     numberLine++;
                     n = n.next;
                 }
@@ -232,14 +218,8 @@ namespace DynamicLinkedListImplementation
 
         }
 
-        public uint getIndex( )
-        {
-            return index;
-        }
+        public uint GetIndex() { return index; }
 
-        public void resetIndex()
-        {
-            index = 0;
-        }
+        public void ResetIndex() { index = 0; }
     }
 }

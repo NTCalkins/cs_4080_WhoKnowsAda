@@ -16,7 +16,7 @@ namespace CS4080project.TextBufferStatic
         uint numberLine = 1; /* How many lines are currently in the buffer if the DoubleLinkedList does not store its own size */
 
         /* Appends contents of input buffer after the input line */
-        public unsafe void append(uint line, DoubleLinkedList2 inputBuffer, uint totalLine, uint* mainbufferLine)
+        public unsafe void Append(uint line, DoubleLinkedList2 inputBuffer, uint totalLine, uint* mainbufferLine)
         {
             if (line == 9999)
             {
@@ -35,11 +35,11 @@ namespace CS4080project.TextBufferStatic
                     temp = temp.next;
                     temp2 = temp2.next;
                 }
-                numberLine = textBufferList.getIndex(); // Get the current line number
-                currentAddress = textBufferList.getIndex(); //Current Address is the last line entered
-                *mainbufferLine = textBufferList.getIndex();
+                numberLine = textBufferList.GetIndex(); // Get the current line number
+                currentAddress = textBufferList.GetIndex(); //Current Address is the last line entered
+                *mainbufferLine = textBufferList.GetIndex();
             }
-            else if (line == 0 || line == textBufferList.getIndex()) //append at the end
+            else if (line == 0 || line == textBufferList.GetIndex()) //append at the end
             {
 
                 StaticStringLinkNode temp = inputBuffer.head;
@@ -56,9 +56,9 @@ namespace CS4080project.TextBufferStatic
                     textBufferList.InsertLast(headOfList, temp.memory);
                     temp = temp.next;
                 }
-                numberLine = textBufferList.getIndex(); // Get the current line number
-                currentAddress = textBufferList.getIndex(); //Current Address is the last line entered
-                *mainbufferLine = textBufferList.getIndex();
+                numberLine = textBufferList.GetIndex(); // Get the current line number
+                currentAddress = textBufferList.GetIndex(); //Current Address is the last line entered
+                *mainbufferLine = textBufferList.GetIndex();
             }
             else //append after a selecte line
             {
@@ -81,11 +81,11 @@ namespace CS4080project.TextBufferStatic
                         temp = temp.next;
                         temp2 = temp2.next;
                     }
-                    numberLine = textBufferList.getIndex(); // Get the current line number
+                    numberLine = textBufferList.GetIndex(); // Get the current line number
                     currentAddress = totalLine + 1; //Current Address is the last line entered
-                    *mainbufferLine = textBufferList.getIndex();
+                    *mainbufferLine = textBufferList.GetIndex();
                 }
-                else if (textBufferList.getIndex() >= line)
+                else if (textBufferList.GetIndex() >= line)
                 {
                     for (int i = 0; i < line - 1; i++)
                     {
@@ -106,8 +106,8 @@ namespace CS4080project.TextBufferStatic
                         temp = temp.next;
                         temp2 = temp2.next;
                     }
-                    *mainbufferLine = textBufferList.getIndex();
-                    numberLine = textBufferList.getIndex(); // Get the current line number
+                    *mainbufferLine = textBufferList.GetIndex();
+                    numberLine = textBufferList.GetIndex(); // Get the current line number
                     currentAddress = totalLine + numberLine; //Current Address is the last line entered
                 }
 
@@ -119,62 +119,62 @@ namespace CS4080project.TextBufferStatic
         }
 
         /* Replace lines from line1 through line2 with the lines in the input buffer. For single argument, change that one line. */
-        public unsafe void change(uint line1, uint line2, DoubleLinkedList2 inputBuffer, uint totalLine, uint* mainbufferLine)
+        public unsafe void Change(uint line1, uint line2, DoubleLinkedList2 inputBuffer, uint totalLine, uint* mainbufferLine)
         {
             if (line1.Equals(1) && line2.Equals(0)) //if loaction is at 1 and second number is 0
             {
-                append(line1, inputBuffer, 0, mainbufferLine);
-                delete(1, 0, mainbufferLine);
-                numberLine = textBufferList.getIndex(); // Get the current line number
+                Append(line1, inputBuffer, 0, mainbufferLine);
+                Delete(1, 0, mainbufferLine);
+                numberLine = textBufferList.GetIndex(); // Get the current line number
                 currentAddress = totalLine + 1; //Current Address is the last line entered
-                *mainbufferLine = textBufferList.getIndex();
+                *mainbufferLine = textBufferList.GetIndex();
             }
             else if (line1 > 1 && line2.Equals(0)) //if loaction is great then 1 and second number is 0
             {
-                delete(line1, 0, mainbufferLine);
-                append(line1 - 1, inputBuffer, 0, mainbufferLine);
-                numberLine = textBufferList.getIndex(); // Get the current line number
+                Delete(line1, 0, mainbufferLine);
+                Append(line1 - 1, inputBuffer, 0, mainbufferLine);
+                numberLine = textBufferList.GetIndex(); // Get the current line number
                 currentAddress = totalLine + line1; //Current Address is the last line entered
-                *mainbufferLine = textBufferList.getIndex();
+                *mainbufferLine = textBufferList.GetIndex();
             }
 
             else if (line2 >= line1)
             {
-                delete(line1, line2, mainbufferLine);
-                append(line1 - 1, inputBuffer, 0, mainbufferLine);
-                numberLine = textBufferList.getIndex(); // Get the current line number
+                Delete(line1, line2, mainbufferLine);
+                Append(line1 - 1, inputBuffer, 0, mainbufferLine);
+                numberLine = textBufferList.GetIndex(); // Get the current line number
                 currentAddress = totalLine + line1; //Current Address is the last line entered
-                *mainbufferLine = textBufferList.getIndex();
+                *mainbufferLine = textBufferList.GetIndex();
             }
 
         }
 
         /* Delete lines from line1 through line2. Also provide a single argument version acting on one line. */
-        public unsafe void delete(uint line1, uint line2, uint* mainbufferLine)
+        public unsafe void Delete(uint line1, uint line2, uint* mainbufferLine)
         {
             if (line1 >= 1 && line2.Equals(0))
             {
-                textBufferList.deleteNodeByLine(headOfList, line1);
-                numberLine = textBufferList.getIndex(); // Get the current line number
+                textBufferList.DeleteNodeByLine(headOfList, line1);
+                numberLine = textBufferList.GetIndex(); // Get the current line number
                 currentAddress = numberLine - 1; //Current Address is the last line entered
-                *mainbufferLine = textBufferList.getIndex();
+                *mainbufferLine = textBufferList.GetIndex();
             }
             else if (line1 == line2) //if same number then only remove that line
             {
-                textBufferList.deleteNodeByLine(headOfList, line1);
-                numberLine = textBufferList.getIndex(); // Get the current line number
+                textBufferList.DeleteNodeByLine(headOfList, line1);
+                numberLine = textBufferList.GetIndex(); // Get the current line number
                 currentAddress = numberLine - 1; //Current Address is the last line entered
-                *mainbufferLine = textBufferList.getIndex();
+                *mainbufferLine = textBufferList.GetIndex();
             }
             else if (line2 > line1) //line1 needs to be greate then line 2
             {
                 for (int i = 0; i < (line2 - line1) + 1; i++)
                 {
-                    textBufferList.deleteNodeByLine(headOfList, line1);
+                    textBufferList.DeleteNodeByLine(headOfList, line1);
                 }
-                numberLine = textBufferList.getIndex(); // Get the current line number
+                numberLine = textBufferList.GetIndex(); // Get the current line number
                 currentAddress = line1 - 1; //Current Address is the last line entered
-                *mainbufferLine = textBufferList.getIndex();
+                *mainbufferLine = textBufferList.GetIndex();
             }
             else
             {
@@ -184,7 +184,7 @@ namespace CS4080project.TextBufferStatic
         }
 
         /* Replace lines from line1 through line2 with a single line that is their concatenation. When only one argument is passed, the command does nothing. */
-        public unsafe void join(uint line1, uint line2, uint* mainbufferLine)
+        public unsafe void Join(uint line1, uint line2, uint* mainbufferLine)
         {
             uint index = line1; // final result will be inser at line one
             uint index2 = line2;
@@ -212,11 +212,11 @@ namespace CS4080project.TextBufferStatic
                     }
 
                     textBufferList.InsertAfter(headOfList.head, copy);
-                    delete(line1, 0, mainbufferLine); //after copy then delete line 1 through line2 
-                    delete(2, line2, mainbufferLine); //after copy then delete line 1 through line2 
-                    numberLine = textBufferList.getIndex(); // Get the current line number
+                    Delete(line1, 0, mainbufferLine); //after copy then delete line 1 through line2 
+                    Delete(2, line2, mainbufferLine); //after copy then delete line 1 through line2 
+                    numberLine = textBufferList.GetIndex(); // Get the current line number
                     currentAddress = line1; //Current Address is the last line entered
-                    *mainbufferLine = textBufferList.getIndex();
+                    *mainbufferLine = textBufferList.GetIndex();
                 }
 
                 else
@@ -239,11 +239,11 @@ namespace CS4080project.TextBufferStatic
                         copy = copy.Insert(copy.Length, " " + temp.memory);
                         index2--;
                     }
-                    delete(line1, line2, mainbufferLine); //delete line 1 through line2  
+                    Delete(line1, line2, mainbufferLine); //delete line 1 through line2  
                     textBufferList.InsertAfter(temp.prev, copy);
-                    numberLine = textBufferList.getIndex(); // Get the current line number
+                    numberLine = textBufferList.GetIndex(); // Get the current line number
                     currentAddress = line1; //Current Address is the last line entered
-                    *mainbufferLine = textBufferList.getIndex();
+                    *mainbufferLine = textBufferList.GetIndex();
                 }
             }
             else
@@ -251,7 +251,7 @@ namespace CS4080project.TextBufferStatic
         }
 
         /* Move lines from line1 through line2 to after line3. For single argument, move that one line. */
-        public unsafe void move(uint line1, uint line2, uint line3, uint* mainbufferLine)
+        public unsafe void Move(uint line1, uint line2, uint line3, uint* mainbufferLine)
         {
             uint index = line1;
             uint index2 = line2;
@@ -265,11 +265,11 @@ namespace CS4080project.TextBufferStatic
                 if (headOfList.head != null && line1.Equals(1)) //If location is line 1
                 {
                     tempList.InsertLast(tempheadOfList, headOfList.head.memory);
-                    delete(1, 0, mainbufferLine);
-                    append(line3 - 1, tempheadOfList, 0, mainbufferLine); //need to rest set memory each time or creat 
-                    numberLine = textBufferList.getIndex(); // Get the current line number
+                    Delete(1, 0, mainbufferLine);
+                    Append(line3 - 1, tempheadOfList, 0, mainbufferLine); //need to rest set memory each time or creat 
+                    numberLine = textBufferList.GetIndex(); // Get the current line number
                     currentAddress = line3; //Current Address is the last line entered
-                    *mainbufferLine = textBufferList.getIndex();
+                    *mainbufferLine = textBufferList.GetIndex();
                 }
                 else if (line3 >= 1)
                 {
@@ -287,11 +287,11 @@ namespace CS4080project.TextBufferStatic
                         index3--;
                         temp2 = temp2.next; // line 3 loaction node string
                     }
-                    delete(line1, 0, mainbufferLine); // now we will reomove line 1 from text buffer
+                    Delete(line1, 0, mainbufferLine); // now we will reomove line 1 from text buffer
                     textBufferList.InsertAfter(temp2, temp.memory);  // Insert line 1 string after line 3
-                    numberLine = textBufferList.getIndex(); // Get the current line number
+                    numberLine = textBufferList.GetIndex(); // Get the current line number
                     currentAddress = line3;
-                    *mainbufferLine = textBufferList.getIndex();
+                    *mainbufferLine = textBufferList.GetIndex();
                 }
                 else if (line3.Equals(0))
                 {
@@ -303,11 +303,11 @@ namespace CS4080project.TextBufferStatic
                         index--;
                         temp = temp.next; // line1 loaction node, we will copy this node's tring to temp                      
                     }
-                    delete(line1, 0, mainbufferLine); // now we will reomove line 1 from text buffer
+                    Delete(line1, 0, mainbufferLine); // now we will reomove line 1 from text buffer
                     textBufferList.InsertFront(headOfList, temp.memory);  // Insert line 1 string after line 3
-                    numberLine = textBufferList.getIndex(); // Get the current line number
+                    numberLine = textBufferList.GetIndex(); // Get the current line number
                     currentAddress = line3;
-                    *mainbufferLine = textBufferList.getIndex();
+                    *mainbufferLine = textBufferList.GetIndex();
                 }
             }
             else if (line1 >= 1 && line2.Equals(line1) && line3 >= 1 && line3 != line1) // if line 1 = line2
@@ -316,11 +316,11 @@ namespace CS4080project.TextBufferStatic
                 if (headOfList.head != null && line1.Equals(1)) //If location is line 1
                 {
                     tempList.InsertLast(tempheadOfList, headOfList.head.memory);
-                    delete(1, 0, mainbufferLine);
-                    append(line3 - 1, tempheadOfList, 0, mainbufferLine); //need to rest set memory each time or creat 
-                    numberLine = textBufferList.getIndex(); // Get the current line number
+                    Delete(1, 0, mainbufferLine);
+                    Append(line3 - 1, tempheadOfList, 0, mainbufferLine); //need to rest set memory each time or creat 
+                    numberLine = textBufferList.GetIndex(); // Get the current line number
                     currentAddress = line3;
-                    *mainbufferLine = textBufferList.getIndex();
+                    *mainbufferLine = textBufferList.GetIndex();
                 }
                 else if (line3 >= 1)
                 {
@@ -338,11 +338,11 @@ namespace CS4080project.TextBufferStatic
                         index3--;
                         temp2 = temp2.next; // line 3 loaction node string
                     }
-                    delete(line1, 0, mainbufferLine); // now we will reomove line 1 from text buffer
+                    Delete(line1, 0, mainbufferLine); // now we will reomove line 1 from text buffer
                     textBufferList.InsertAfter(temp2, temp.memory);  // Insert line 1 string after line 3
-                    numberLine = textBufferList.getIndex(); // Get the current line number
+                    numberLine = textBufferList.GetIndex(); // Get the current line number
                     currentAddress = line3;
-                    *mainbufferLine = textBufferList.getIndex();
+                    *mainbufferLine = textBufferList.GetIndex();
                 }
                 else if (line3.Equals(0))
                 {
@@ -360,11 +360,11 @@ namespace CS4080project.TextBufferStatic
                         index3--;
                         temp2 = temp2.next; // line 3 loaction node string
                     }
-                    delete(line1, 0, mainbufferLine); // now we will reomove line 1 from text buffer
+                    Delete(line1, 0, mainbufferLine); // now we will reomove line 1 from text buffer
                     textBufferList.InsertFront(headOfList, temp.memory);  // Insert line 1 string after line 3
-                    numberLine = textBufferList.getIndex(); // Get the current line number
+                    numberLine = textBufferList.GetIndex(); // Get the current line number
                     currentAddress = line3;
-                    *mainbufferLine = textBufferList.getIndex();
+                    *mainbufferLine = textBufferList.GetIndex();
                 }
             }
             else if (line2 > line1 && !(line1 <= line3 && line3 <= line2)) // copy line 1 throut line 2 and inser after line 3
@@ -389,29 +389,29 @@ namespace CS4080project.TextBufferStatic
                 }
                 if (line3.Equals(0))
                 {
-                    delete(line1, line2, mainbufferLine); //after copy then delete line 1 through line2     
-                    append(9999, tempheadOfList, 0, mainbufferLine);
-                    numberLine = textBufferList.getIndex(); // Get the current line number
+                    Delete(line1, line2, mainbufferLine); //after copy then delete line 1 through line2     
+                    Append(9999, tempheadOfList, 0, mainbufferLine);
+                    numberLine = textBufferList.GetIndex(); // Get the current line number
                     currentAddress = line3 + (line2 - line1 + 1);
-                    *mainbufferLine = textBufferList.getIndex();
+                    *mainbufferLine = textBufferList.GetIndex();
                 }
                 else if (line3 > line2) // if line 3 is after line 2                   
                 {
 
-                    delete(line1, line2, mainbufferLine); //after copy then delete line 1 through line2                        
-                    append(line3 - (line2 - line1 + 1), tempheadOfList, 0, mainbufferLine);
-                    numberLine = textBufferList.getIndex(); // Get the current line number
+                    Delete(line1, line2, mainbufferLine); //after copy then delete line 1 through line2                        
+                    Append(line3 - (line2 - line1 + 1), tempheadOfList, 0, mainbufferLine);
+                    numberLine = textBufferList.GetIndex(); // Get the current line number
                     currentAddress = line3;
-                    *mainbufferLine = textBufferList.getIndex();
+                    *mainbufferLine = textBufferList.GetIndex();
                 }
 
                 else if (line3 < line1)  // if line 3 is before line 1                  
                 {
-                    delete(line1, line2, mainbufferLine); //after copy then delete line 1 through line2                       
-                    append(line3, tempheadOfList, 0, mainbufferLine);
-                    numberLine = textBufferList.getIndex(); // Get the current line number
+                    Delete(line1, line2, mainbufferLine); //after copy then delete line 1 through line2                       
+                    Append(line3, tempheadOfList, 0, mainbufferLine);
+                    numberLine = textBufferList.GetIndex(); // Get the current line number
                     currentAddress = line3 + (line2 - line1 + 1);
-                    *mainbufferLine = textBufferList.getIndex();
+                    *mainbufferLine = textBufferList.GetIndex();
                 }
 
             }
@@ -424,17 +424,15 @@ namespace CS4080project.TextBufferStatic
         }
 
         /* Print out lines from line1 through line2. For single argument, list that one line. */
-        public unsafe void list(uint line1, uint line2, uint* mainbufferLine)
+        public unsafe void List(uint line1, uint line2, uint* mainbufferLine)
         {
             if (line2 >= line1)
             {
-                Console.WriteLine("***************");
                 Console.WriteLine("* Print line  *");
-                Console.WriteLine("***************");
                 textBufferList.PrintList(headOfList, line1, line2, 1);
                 firstline = line1;
                 currentAddress = line2; //Current Address is the last line entered
-                *mainbufferLine = textBufferList.getIndex();
+                *mainbufferLine = textBufferList.GetIndex();
             }
             else
             {
@@ -443,16 +441,14 @@ namespace CS4080project.TextBufferStatic
         }
 
         /* Number out lines from line1 through line2. For single argument, number that one line. */
-        public unsafe void number(uint line1, uint line2, uint* mainbufferLine)
+        public unsafe void Number(uint line1, uint line2, uint* mainbufferLine)
         {
             if (line2 >= line1)
             {
-                Console.WriteLine("***************");
                 Console.WriteLine("* Print line  *");
-                Console.WriteLine("***************");
                 textBufferList.PrintList(headOfList, line1, line2, 2);
                 currentAddress = line2; //Current Address is the last line entered
-                *mainbufferLine = textBufferList.getIndex();
+                *mainbufferLine = textBufferList.GetIndex();
             }
             else
             {
@@ -461,7 +457,7 @@ namespace CS4080project.TextBufferStatic
         }
 
         /* Copies lines from line1 through line2 and inserts them after line3. For single argument, transfer that one line. */
-        public unsafe void transfer(uint line1, uint line2, uint line3, uint* mainbufferLine)
+        public unsafe void Transfer(uint line1, uint line2, uint line3, uint* mainbufferLine)
         {
             {
                 uint index = line1;
@@ -476,10 +472,10 @@ namespace CS4080project.TextBufferStatic
                     if (headOfList.head != null && line1.Equals(1)) //If location is line 1
                     {
                         tempList.InsertLast(tempheadOfList, headOfList.head.memory);
-                        append(line3 - 1, tempheadOfList, 0, mainbufferLine); //need to rest set memory each time or creat 
-                        numberLine = textBufferList.getIndex(); // Get the current line number
+                        Append(line3 - 1, tempheadOfList, 0, mainbufferLine); //need to rest set memory each time or creat 
+                        numberLine = textBufferList.GetIndex(); // Get the current line number
                         currentAddress = line3 + 1;
-                        *mainbufferLine = textBufferList.getIndex();
+                        *mainbufferLine = textBufferList.GetIndex();
                     }
                     else if (line3 >= 1)
                     {
@@ -498,9 +494,9 @@ namespace CS4080project.TextBufferStatic
                             temp2 = temp2.next; // line 3 loaction node string
                         }
                         textBufferList.InsertAfter(temp2, temp.memory);  // Insert line 1 string after line 3
-                        numberLine = textBufferList.getIndex(); // Get the current line number
+                        numberLine = textBufferList.GetIndex(); // Get the current line number
                         currentAddress = line3 + 1;
-                        *mainbufferLine = textBufferList.getIndex();
+                        *mainbufferLine = textBufferList.GetIndex();
                     }
                     else if (line3.Equals(0))
                     {
@@ -513,9 +509,9 @@ namespace CS4080project.TextBufferStatic
                             temp = temp.next; // line1 loaction node, we will copy this node's tring to temp                      
                         }
                         textBufferList.InsertFront(headOfList, temp.memory);  // Insert line 1 string after line 3
-                        numberLine = textBufferList.getIndex(); // Get the current line number
+                        numberLine = textBufferList.GetIndex(); // Get the current line number
                         currentAddress = line3;
-                        *mainbufferLine = textBufferList.getIndex();
+                        *mainbufferLine = textBufferList.GetIndex();
                     }
                 }
                 else if (line1 >= 1 && line2.Equals(line1) && line3 >= 1 && line3 != line1) // if line 1 = line2
@@ -524,10 +520,10 @@ namespace CS4080project.TextBufferStatic
                     if (headOfList.head != null && line1.Equals(1)) //If location is line 1
                     {
                         tempList.InsertLast(tempheadOfList, headOfList.head.memory);
-                        append(line3 - 1, tempheadOfList, 0, mainbufferLine); //need to rest set memory each time or creat 
-                        numberLine = textBufferList.getIndex(); // Get the current line number
+                        Append(line3 - 1, tempheadOfList, 0, mainbufferLine); //need to rest set memory each time or creat 
+                        numberLine = textBufferList.GetIndex(); // Get the current line number
                         currentAddress = line3 + 1;
-                        *mainbufferLine = textBufferList.getIndex();
+                        *mainbufferLine = textBufferList.GetIndex();
                     }
                     else
                     {
@@ -546,9 +542,9 @@ namespace CS4080project.TextBufferStatic
                             temp2 = temp2.next; // line 3 loaction node string
                         }
                         textBufferList.InsertAfter(temp2, temp.memory);  // Insert line 1 string after line 3
-                        numberLine = textBufferList.getIndex(); // Get the current line number
+                        numberLine = textBufferList.GetIndex(); // Get the current line number
                         currentAddress = line3 + 1;
-                        *mainbufferLine = textBufferList.getIndex();
+                        *mainbufferLine = textBufferList.GetIndex();
                     }
                 }
                 else if (line2 > line1) // copy line 1 throut line 2 and inser after line 3
@@ -574,10 +570,10 @@ namespace CS4080project.TextBufferStatic
                             temp = temp.next; // line1 loaction node, we will copy this node's tring to temp                      
                             index2--;
                         }
-                        append(9999, tempheadOfList, 0, mainbufferLine);
-                        numberLine = textBufferList.getIndex(); // Get the current line number
+                        Append(9999, tempheadOfList, 0, mainbufferLine);
+                        numberLine = textBufferList.GetIndex(); // Get the current line number
                         currentAddress = line3 + (line2 - line1 + 1);
-                        *mainbufferLine = textBufferList.getIndex();
+                        *mainbufferLine = textBufferList.GetIndex();
                     }
                     else
                     {
@@ -601,10 +597,10 @@ namespace CS4080project.TextBufferStatic
                             index2--;
                         }
 
-                        append(line3, tempheadOfList, 0, mainbufferLine);
-                        numberLine = textBufferList.getIndex(); // Get the current line number
+                        Append(line3, tempheadOfList, 0, mainbufferLine);
+                        numberLine = textBufferList.GetIndex(); // Get the current line number
                         currentAddress = line3 + (line2 - line1 + 1);
-                        *mainbufferLine = textBufferList.getIndex();
+                        *mainbufferLine = textBufferList.GetIndex();
                     }
 
                 }
@@ -616,7 +612,7 @@ namespace CS4080project.TextBufferStatic
         }
 
         /* Writes the contents of the buffer into the inputted file */
-        public void write(string inputName)
+        public void Write(string inputName)
         {
             StreamWriter sw;
 
@@ -638,7 +634,7 @@ namespace CS4080project.TextBufferStatic
 
                 StaticStringLinkNode n = headOfList.head;
                 uint numberLine = firstline;
-                uint tempIndex = textBufferList.getIndex();
+                uint tempIndex = textBufferList.GetIndex();
 
                 for (int i = 0; i < tempIndex; i++)
                 {
@@ -657,7 +653,7 @@ namespace CS4080project.TextBufferStatic
         }
 
         /* Loads the contents of the input file and sets currentAddress to the last line */
-        public void edit(string inputName)
+        public void Edit(string inputName)
         {
             FileInfo fileName;
             StreamReader sr;
@@ -681,7 +677,7 @@ namespace CS4080project.TextBufferStatic
 
                 //Delete all not saved list
                 headOfList.head = null;
-                textBufferList.resetIndex();
+                textBufferList.GetIndex();
 
 
                 //Peek to see if the next character exists
@@ -691,8 +687,8 @@ namespace CS4080project.TextBufferStatic
                 }
 
                 firstline = 1; // Reset first line to 1
-                numberLine = textBufferList.getIndex(); // Get the current line number
-                currentAddress = textBufferList.getIndex(); //Current Address is the last line entered
+                numberLine = textBufferList.GetIndex(); // Get the current line number
+                currentAddress = textBufferList.GetIndex(); //Current Address is the last line entered
 
                 //Close the file
                 sr.Close();
@@ -711,16 +707,14 @@ namespace CS4080project.TextBufferStatic
 
         public void print() //Print everything from text buffer
         {
-            Console.WriteLine("***************");
             Console.WriteLine("* Text Buffer *");
-            Console.WriteLine("***************");
             textBufferList.PrintList(headOfList, 0, 0, 0);
         }
 
         public void printLine(uint line1, uint line2, DoubleLinkedList2 inputBuffer) //Print everything from text buffer
         {
 
-            if (line2 <= textBufferList.getIndex())
+            if (line2 <= textBufferList.GetIndex())
             {
                 textBufferList.PrintList(headOfList, line1, line2, 3);
                 currentAddress = line2;
