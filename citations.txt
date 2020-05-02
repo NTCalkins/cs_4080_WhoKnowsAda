@@ -1,0 +1,11 @@
+Code References:
+
+Papers/Articles:
+https://www.gnu.org/software/ed/manual/ed_manual.html#Overview
+http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1548.pdf
+https://en.cppreference.com/w/cpp/language/string_literal
+http://www.bell-labs.com/usr/dmr/www/chist.html
+https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/strings/
+https://www.scala-lang.org/api/current/scala/collection/mutable/StringBuilder.html
+http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.640.9064&rep=rep1&type=pdf
+https://docs.oracle.com/javase/specs/jls/se14/jls14.pdf
