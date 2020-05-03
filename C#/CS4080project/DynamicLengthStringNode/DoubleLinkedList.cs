@@ -14,7 +14,6 @@ namespace DynamicLinkedListImplementation
     internal class DynamicStringLinkNode
     {
         internal static int capacity = 10;
-        internal static int maxCapacity = 1024;
         internal StringBuilder memory; 
 
         internal DynamicStringLinkNode prev;
@@ -23,7 +22,7 @@ namespace DynamicLinkedListImplementation
         //Dynamic lenght string node
         public DynamicStringLinkNode(string input)
         {
-            memory = new StringBuilder(capacity, maxCapacity);
+            memory = new StringBuilder(capacity);
             memory.Append(input);
 
             prev = null;
