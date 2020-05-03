@@ -24,14 +24,14 @@ namespace CS4080project.TextBufferStatic
 
                 if (temp != null)
                 {
-                    textBufferList.InsertFront(headOfList, temp.memory); // copy first line from input buffer to text buffer
+                    textBufferList.InsertFront(headOfList, temp.memory.ToString()); // copy first line from input buffer to text buffer
                 }
                 StaticStringLinkNode temp2 = headOfList.head;
                 temp = temp.next;
 
                 while (temp != null)
                 {
-                    textBufferList.InsertAfter(temp2, temp.memory);
+                    textBufferList.InsertAfter(temp2, temp.memory.ToString());
                     temp = temp.next;
                     temp2 = temp2.next;
                 }
@@ -46,14 +46,14 @@ namespace CS4080project.TextBufferStatic
 
                 if (temp != null)
                 {
-                    textBufferList.InsertLast(headOfList, temp.memory); // copy first line from input buffer to text buffer
+                    textBufferList.InsertLast(headOfList, temp.memory.ToString()); // copy first line from input buffer to text buffer
                 }
 
                 temp = temp.next;
 
                 while (temp != null)
                 {
-                    textBufferList.InsertLast(headOfList, temp.memory);
+                    textBufferList.InsertLast(headOfList, temp.memory.ToString());
                     temp = temp.next;
                 }
                 numberLine = textBufferList.GetIndex(); // Get the current line number
@@ -69,7 +69,7 @@ namespace CS4080project.TextBufferStatic
                 {
                     if (temp != null)
                     {
-                        textBufferList.InsertAfter(headOfList.head, temp.memory);
+                        textBufferList.InsertAfter(headOfList.head, temp.memory.ToString());
                     }
 
                     temp = temp.next;
@@ -77,7 +77,7 @@ namespace CS4080project.TextBufferStatic
 
                     while (temp != null)
                     {
-                        textBufferList.InsertAfter(temp2, temp.memory);
+                        textBufferList.InsertAfter(temp2, temp.memory.ToString());
                         temp = temp.next;
                         temp2 = temp2.next;
                     }
@@ -94,7 +94,7 @@ namespace CS4080project.TextBufferStatic
 
                     if (temp != null)
                     {
-                        textBufferList.InsertAfter(temp2, temp.memory);
+                        textBufferList.InsertAfter(temp2, temp.memory.ToString());
                     }
 
                     temp = temp.next;
@@ -102,7 +102,7 @@ namespace CS4080project.TextBufferStatic
 
                     while (temp != null)
                     {
-                        textBufferList.InsertAfter(temp2, temp.memory);
+                        textBufferList.InsertAfter(temp2, temp.memory.ToString());
                         temp = temp.next;
                         temp2 = temp2.next;
                     }
@@ -200,14 +200,14 @@ namespace CS4080project.TextBufferStatic
 
                 if (line1.Equals(1)) //if start at first line
                 {
-                    copy = headOfList.head.memory;
+                    copy = headOfList.head.memory.ToString();
                     index2--;
 
                     while (temp != null && index2 != 0)
                     {
                         temp = temp.next;
 
-                        copy = copy.Insert(copy.Length, " " + temp.memory);
+                        copy = copy.Insert(copy.Length, " " + temp.memory.ToString());
                         index2--;
                     }
 
@@ -231,12 +231,12 @@ namespace CS4080project.TextBufferStatic
                         index--;
                     }
 
-                    copy = temp.memory;
+                    copy = temp.memory.ToString();
                     index2--;
                     while (temp != null && index2 != 0) //copy from line 1 to line2
                     {
                         temp = temp.next;
-                        copy = copy.Insert(copy.Length, " " + temp.memory);
+                        copy = copy.Insert(copy.Length, " " + temp.memory.ToString());
                         index2--;
                     }
                     Delete(line1, line2, mainbufferLine); //delete line 1 through line2  
@@ -264,7 +264,7 @@ namespace CS4080project.TextBufferStatic
 
                 if (headOfList.head != null && line1.Equals(1)) //If location is line 1
                 {
-                    tempList.InsertLast(tempheadOfList, headOfList.head.memory);
+                    tempList.InsertLast(tempheadOfList, headOfList.head.memory.ToString());
                     Delete(1, 0, mainbufferLine);
                     Append(line3 - 1, tempheadOfList, 0, mainbufferLine); //need to rest set memory each time or creat 
                     numberLine = textBufferList.GetIndex(); // Get the current line number
@@ -288,7 +288,7 @@ namespace CS4080project.TextBufferStatic
                         temp2 = temp2.next; // line 3 loaction node string
                     }
                     Delete(line1, 0, mainbufferLine); // now we will reomove line 1 from text buffer
-                    textBufferList.InsertAfter(temp2, temp.memory);  // Insert line 1 string after line 3
+                    textBufferList.InsertAfter(temp2, temp.memory.ToString());  // Insert line 1 string after line 3
                     numberLine = textBufferList.GetIndex(); // Get the current line number
                     currentAddress = line3;
                     *mainbufferLine = textBufferList.GetIndex();
@@ -304,7 +304,7 @@ namespace CS4080project.TextBufferStatic
                         temp = temp.next; // line1 loaction node, we will copy this node's tring to temp                      
                     }
                     Delete(line1, 0, mainbufferLine); // now we will reomove line 1 from text buffer
-                    textBufferList.InsertFront(headOfList, temp.memory);  // Insert line 1 string after line 3
+                    textBufferList.InsertFront(headOfList, temp.memory.ToString());  // Insert line 1 string after line 3
                     numberLine = textBufferList.GetIndex(); // Get the current line number
                     currentAddress = line3;
                     *mainbufferLine = textBufferList.GetIndex();
@@ -315,7 +315,7 @@ namespace CS4080project.TextBufferStatic
 
                 if (headOfList.head != null && line1.Equals(1)) //If location is line 1
                 {
-                    tempList.InsertLast(tempheadOfList, headOfList.head.memory);
+                    tempList.InsertLast(tempheadOfList, headOfList.head.memory.ToString());
                     Delete(1, 0, mainbufferLine);
                     Append(line3 - 1, tempheadOfList, 0, mainbufferLine); //need to rest set memory each time or creat 
                     numberLine = textBufferList.GetIndex(); // Get the current line number
@@ -339,7 +339,7 @@ namespace CS4080project.TextBufferStatic
                         temp2 = temp2.next; // line 3 loaction node string
                     }
                     Delete(line1, 0, mainbufferLine); // now we will reomove line 1 from text buffer
-                    textBufferList.InsertAfter(temp2, temp.memory);  // Insert line 1 string after line 3
+                    textBufferList.InsertAfter(temp2, temp.memory.ToString());  // Insert line 1 string after line 3
                     numberLine = textBufferList.GetIndex(); // Get the current line number
                     currentAddress = line3;
                     *mainbufferLine = textBufferList.GetIndex();
@@ -361,7 +361,7 @@ namespace CS4080project.TextBufferStatic
                         temp2 = temp2.next; // line 3 loaction node string
                     }
                     Delete(line1, 0, mainbufferLine); // now we will reomove line 1 from text buffer
-                    textBufferList.InsertFront(headOfList, temp.memory);  // Insert line 1 string after line 3
+                    textBufferList.InsertFront(headOfList, temp.memory.ToString());  // Insert line 1 string after line 3
                     numberLine = textBufferList.GetIndex(); // Get the current line number
                     currentAddress = line3;
                     *mainbufferLine = textBufferList.GetIndex();
@@ -383,7 +383,7 @@ namespace CS4080project.TextBufferStatic
 
                 while (temp != null && index2 != 0) //If location is line 1. Copy line 1 thorough line 2                   
                 {
-                    tempList.InsertLast(tempheadOfList, temp.memory);
+                    tempList.InsertLast(tempheadOfList, temp.memory.ToString());
                     temp = temp.next; // line1 loaction node, we will copy this node's tring to temp                      
                     index2--;
                 }
@@ -471,7 +471,7 @@ namespace CS4080project.TextBufferStatic
 
                     if (headOfList.head != null && line1.Equals(1)) //If location is line 1
                     {
-                        tempList.InsertLast(tempheadOfList, headOfList.head.memory);
+                        tempList.InsertLast(tempheadOfList, headOfList.head.memory.ToString());
                         Append(line3 - 1, tempheadOfList, 0, mainbufferLine); //need to rest set memory each time or creat 
                         numberLine = textBufferList.GetIndex(); // Get the current line number
                         currentAddress = line3 + 1;
@@ -493,7 +493,7 @@ namespace CS4080project.TextBufferStatic
                             index3--;
                             temp2 = temp2.next; // line 3 loaction node string
                         }
-                        textBufferList.InsertAfter(temp2, temp.memory);  // Insert line 1 string after line 3
+                        textBufferList.InsertAfter(temp2, temp.memory.ToString());  // Insert line 1 string after line 3
                         numberLine = textBufferList.GetIndex(); // Get the current line number
                         currentAddress = line3 + 1;
                         *mainbufferLine = textBufferList.GetIndex();
@@ -508,7 +508,7 @@ namespace CS4080project.TextBufferStatic
                             index--;
                             temp = temp.next; // line1 loaction node, we will copy this node's tring to temp                      
                         }
-                        textBufferList.InsertFront(headOfList, temp.memory);  // Insert line 1 string after line 3
+                        textBufferList.InsertFront(headOfList, temp.memory.ToString());  // Insert line 1 string after line 3
                         numberLine = textBufferList.GetIndex(); // Get the current line number
                         currentAddress = line3;
                         *mainbufferLine = textBufferList.GetIndex();
@@ -519,7 +519,7 @@ namespace CS4080project.TextBufferStatic
 
                     if (headOfList.head != null && line1.Equals(1)) //If location is line 1
                     {
-                        tempList.InsertLast(tempheadOfList, headOfList.head.memory);
+                        tempList.InsertLast(tempheadOfList, headOfList.head.memory.ToString());
                         Append(line3 - 1, tempheadOfList, 0, mainbufferLine); //need to rest set memory each time or creat 
                         numberLine = textBufferList.GetIndex(); // Get the current line number
                         currentAddress = line3 + 1;
@@ -541,7 +541,7 @@ namespace CS4080project.TextBufferStatic
                             index3--;
                             temp2 = temp2.next; // line 3 loaction node string
                         }
-                        textBufferList.InsertAfter(temp2, temp.memory);  // Insert line 1 string after line 3
+                        textBufferList.InsertAfter(temp2, temp.memory.ToString());  // Insert line 1 string after line 3
                         numberLine = textBufferList.GetIndex(); // Get the current line number
                         currentAddress = line3 + 1;
                         *mainbufferLine = textBufferList.GetIndex();
@@ -566,7 +566,7 @@ namespace CS4080project.TextBufferStatic
 
                         while (temp != null && index2 != 0) //If location is line 1. Copy line 1 thorough line 2                   
                         {
-                            tempList.InsertLast(tempheadOfList, temp.memory);
+                            tempList.InsertLast(tempheadOfList, temp.memory.ToString());
                             temp = temp.next; // line1 loaction node, we will copy this node's tring to temp                      
                             index2--;
                         }
@@ -592,7 +592,7 @@ namespace CS4080project.TextBufferStatic
 
                         while (temp != null && index2 != 0) //If location is line 1. Copy line 1 thorough line 2                   
                         {
-                            tempList.InsertLast(tempheadOfList, temp.memory);
+                            tempList.InsertLast(tempheadOfList, temp.memory.ToString());
                             temp = temp.next; // line1 loaction node, we will copy this node's tring to temp                      
                             index2--;
                         }
@@ -639,7 +639,7 @@ namespace CS4080project.TextBufferStatic
                 for (int i = 0; i < tempIndex; i++)
                 {
                     //Write to file
-                    sw.WriteLine(n.memory);
+                    sw.WriteLine(n.memory.ToString());
                     numberLine++;
                     n = n.next;
                 }

@@ -13,9 +13,8 @@ namespace DynamicLinkedListImplementation
     //internal node for double linked list
     internal class DynamicStringLinkNode
     {
-        internal string memory;
-        internal int capacity = 10;
-        internal int maxCapacity = 1024;
+        internal StringBuilder memory; /* Use StringBuilder to represent internal string data! */
+        internal int capacity = 8;
 
         internal DynamicStringLinkNode prev;
         internal DynamicStringLinkNode next;
@@ -23,18 +22,20 @@ namespace DynamicLinkedListImplementation
         //Dynamic lenght string node
         public DynamicStringLinkNode(string input)
         {
-            StringBuilder stringBuilder = new StringBuilder(capacity, maxCapacity); //initial size is 10
+            StringBuilder memory = new StringBuilder(capacity);
             stringBuilder.Append(input);
-
-            memory = stringBuilder.ToString();
 
             prev = null;
             next = null;
         }
 
-        public void Copy (string input) { memory = input; }
+        public void Copy (string input)
+		{
+			memory.Clear();
+			memory.Append(input);
+		}
 
-        public void Append (string input ) { memory = memory + input; }
+        public void Append (string input ) { memory.Append(input); }
 
         public void Insert(int position, string input) { memory.Insert(position, input); }
     }
@@ -145,7 +146,7 @@ namespace DynamicLinkedListImplementation
                 int numberLine = 1;
                 while (n != null)
                 {
-                    Console.WriteLine(numberLine + " >> " + n.memory + " ");
+                    Console.WriteLine(numberLine + " >> " + n.memory.ToString() + " ");
                     numberLine++;
                     n = n.next;
                 }
@@ -166,7 +167,7 @@ namespace DynamicLinkedListImplementation
 
                 for(int i = 0; i < (line2 - line1 + 1); i++)
                 {
-                    Console.WriteLine(numberLine + " > " + n.memory + " $");
+                    Console.WriteLine(numberLine + " > " + n.memory.ToString() + " $");
                     numberLine++;
                     n = n.next;
                 }
@@ -188,7 +189,7 @@ namespace DynamicLinkedListImplementation
                 for (int i = 0; i < (line2 - line1 + 1)  ; i++)
                 {
 
-                    Console.WriteLine("> " + numberLine +"\t" + n.memory);
+                    Console.WriteLine("> " + numberLine +"\t" + n.memory.ToString());
                     numberLine++;
                     n = n.next;
                 }
@@ -210,7 +211,7 @@ namespace DynamicLinkedListImplementation
                 for (int i = 0; i < (line2 - line1 + 1); i++)
                 {
 
-                    Console.WriteLine("> " + n.memory);
+                    Console.WriteLine("> " + n.memory.ToString());
                     numberLine++;
                     n = n.next;
                 }

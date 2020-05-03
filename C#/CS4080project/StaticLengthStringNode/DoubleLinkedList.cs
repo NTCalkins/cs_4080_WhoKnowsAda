@@ -14,8 +14,8 @@ namespace StaticLinkedListImplementation
     //internal node for double linked list
     internal class StaticStringLinkNode
     {
-        internal string memory;
-        internal int maxCapacity = 255;
+        internal StringBuilder memory; /* Use StringBuilder to internally represent string contents! */
+        internal int maxCapacity = 1024;
 
         internal StaticStringLinkNode prev;
         internal StaticStringLinkNode next;
@@ -23,18 +23,20 @@ namespace StaticLinkedListImplementation
         //Dynamic lenght string node
         public StaticStringLinkNode(string input)
         {
-            StringBuilder stringBuilder = new StringBuilder(maxCapacity, maxCapacity); //initial size is 255
-            stringBuilder.Append(input);
-
-            memory = stringBuilder.ToString();
-
+            StringBuilder memory = new StringBuilder(maxCapacity, maxCapacity);
+            memory.Append(input);
+            
             prev = null;
             next = null;
         }
 
-        public void Copy(string input) { memory = input; }
+        public void Copy(string input)
+		{
+			memory.Clear();
+			memory.Append(input);
+		}
 
-        public void Append(string input) { memory = memory + input; }
+        public void Append(string input) { memory.Append(input); }
 
         public void Insert(int position, string input) { memory.Insert(position, input); }
     }
@@ -148,7 +150,7 @@ namespace StaticLinkedListImplementation
                 int numberLine = 1;
                 while (n != null)
                 {
-                    Console.WriteLine(numberLine + " >> " + n.memory + " ");
+                    Console.WriteLine(numberLine + " >> " + n.memory.ToString() + " ");
                     numberLine++;
                     n = n.next;
                 }
@@ -169,7 +171,7 @@ namespace StaticLinkedListImplementation
 
                 for(int i = 0; i < (line2 - line1 + 1); i++)
                 {
-                    Console.WriteLine(numberLine + "> " + n.memory + " $");
+                    Console.WriteLine(numberLine + "> " + n.memory.ToString() + " $");
                     numberLine++;
                     n = n.next;
                 }
@@ -191,7 +193,7 @@ namespace StaticLinkedListImplementation
                 for (int i = 0; i < (line2 - line1 + 1)  ; i++)
                 {
 
-                    Console.WriteLine("> " + numberLine +"\t" + n.memory);
+                    Console.WriteLine("> " + numberLine +"\t" + n.memory.ToString());
                     numberLine++;
                     n = n.next;
                 }
@@ -213,7 +215,7 @@ namespace StaticLinkedListImplementation
                 for (int i = 0; i < (line2 - line1 + 1); i++)
                 {
 
-                    Console.WriteLine("> " + n.memory);
+                    Console.WriteLine("> " + n.memory.ToString());
                     numberLine++;
                     n = n.next;
                 }
