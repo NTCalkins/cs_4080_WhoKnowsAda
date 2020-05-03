@@ -207,7 +207,7 @@ namespace CS4080project.TextBufferStatic
                     {
                         temp = temp.next;
 
-                        copy = copy.Insert(copy.Length, " " + temp.memory.ToString());
+                        copy = copy.Insert(copy.Length, " " + temp.memory);
                         index2--;
                     }
 
@@ -236,7 +236,7 @@ namespace CS4080project.TextBufferStatic
                     while (temp != null && index2 != 0) //copy from line 1 to line2
                     {
                         temp = temp.next;
-                        copy = copy.Insert(copy.Length, " " + temp.memory.ToString());
+                        copy = copy.Insert(copy.Length, " " + temp.memory);
                         index2--;
                     }
                     Delete(line1, line2, mainbufferLine); //delete line 1 through line2  
@@ -639,7 +639,7 @@ namespace CS4080project.TextBufferStatic
                 for (int i = 0; i < tempIndex; i++)
                 {
                     //Write to file
-                    sw.WriteLine(n.memory.ToString());
+                    sw.WriteLine(n.memory);
                     numberLine++;
                     n = n.next;
                 }
@@ -725,12 +725,12 @@ namespace CS4080project.TextBufferStatic
             }
         }
 
-        public uint getNumberOfLines()
+        public uint GetNumberOfLines()
         {
             return numberLine;
         }
 
-        public uint getCurrentAddress()
+        public uint GetCurrentAddress()
         {
             return currentAddress;
         }

@@ -8,7 +8,7 @@ namespace CS4080project.TextBufferDynamic
 {
     class TextBufferDynamic
     {
-        doublylinked textBufferList = new doublylinked(); // The text of the current document (DynamicString)
+        Doublylinked textBufferList = new Doublylinked(); // The text of the current document (DynamicString)
         DoubleLinkedList headOfList = new DoubleLinkedList();  // The first line of the current document (DynamicString)
         uint currentAddress; /* The address used as the default single input for commands when no parameters are passed. Check the doc for which commands change this. */
         uint firstline = 1; // Use for file save starting position.
@@ -206,7 +206,7 @@ namespace CS4080project.TextBufferDynamic
                     {
                         temp = temp.next;
 
-                        copy = copy.Insert(copy.Length, " " + temp.memory.ToString());
+                        copy = copy.Insert(copy.Length, " " + temp.memory);
                         index2--;
                     }
 
@@ -235,7 +235,7 @@ namespace CS4080project.TextBufferDynamic
                     while (temp != null && index2 != 0) //copy from line 1 to line2
                     {
                         temp = temp.next;
-                        copy = copy.Insert(copy.Length, " " + temp.memory.ToString());
+                        copy = copy.Insert(copy.Length, " " + temp.memory);
                         index2--;
                     }
                     Delete(line1, line2, mainbufferLine); //delete line 1 through line2  
@@ -255,7 +255,7 @@ namespace CS4080project.TextBufferDynamic
             uint index = line1;
             uint index2 = line2;
             uint index3 = line3;
-            doublylinked tempList = new doublylinked(); // Temp helper list 
+            Doublylinked tempList = new Doublylinked(); // Temp helper list 
             DoubleLinkedList tempheadOfList = new DoubleLinkedList();  // Temp helper list's first node
 
             if (line1 >= 1 && line2.Equals(0) && line3 >= 0 && line3 != line1) //if line 2 is 0 then only move one line
@@ -462,7 +462,7 @@ namespace CS4080project.TextBufferDynamic
                 uint index = line1;
                 uint index2 = line2;
                 uint index3 = line3;
-                doublylinked tempList = new doublylinked(); // Temp helper list 
+                Doublylinked tempList = new Doublylinked(); // Temp helper list 
                 DoubleLinkedList tempheadOfList = new DoubleLinkedList();  // Temp helper list's first node
 
                 if (line1 >= 1 && line2.Equals(0) && line3 >= 0 && line3 != line1) //is line 2 is 0 then only transfer one line
@@ -638,7 +638,7 @@ namespace CS4080project.TextBufferDynamic
                 for (int i = 0; i < tempIndex; i++)
                 {
                     //Write to file
-                    sw.WriteLine(n.memory.ToString());
+                    sw.WriteLine(n.memory);
                     numberLine++;
                     n = n.next;
                 }

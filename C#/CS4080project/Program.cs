@@ -53,7 +53,7 @@ namespace LinkedListImplementation
 
             Parser myParser = new Parser("", 0);
             TextBufferDynamic tempTextBuffer = new TextBufferDynamic(); //Create temp buffer                   
-            doublylinked inputList = new doublylinked();  // My text buffer
+            Doublylinked inputList = new Doublylinked();  // My text buffer
             DoubleLinkedList headOfList = new DoubleLinkedList(); //First node
 
             while (!input.Equals("q", StringComparison.InvariantCultureIgnoreCase))
