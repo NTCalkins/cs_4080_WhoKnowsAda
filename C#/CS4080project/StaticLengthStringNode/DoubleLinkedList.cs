@@ -23,7 +23,7 @@ namespace StaticLinkedListImplementation
         //Dynamic lenght string node
         public StaticStringLinkNode(string input)
         {
-            StringBuilder memory = new StringBuilder(maxCapacity, maxCapacity);
+            memory = new StringBuilder(maxCapacity, maxCapacity);
             memory.Append(input);
             
             prev = null;

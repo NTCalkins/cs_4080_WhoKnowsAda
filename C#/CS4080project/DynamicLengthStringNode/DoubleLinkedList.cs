@@ -22,7 +22,7 @@ namespace DynamicLinkedListImplementation
         //Dynamic lenght string node
         public DynamicStringLinkNode(string input)
         {
-            StringBuilder memory = new StringBuilder(capacity);
+            memory = new StringBuilder(capacity);
             stringBuilder.Append(input);
 
             prev = null;
