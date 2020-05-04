@@ -1,0 +1,37 @@
+=======================================================================
+Harvey Lin
+CS 4080
+Professor Talari
+=======================================================================
+
+This is the source code for the C implementation of the text editor.
+"textedit.c" contains the main driver for the program. To build the
+program, compile that file.
+
+  ex) If compiling with clang, run
+        cc textedit.c
+
+Running the program is now the simple matter of calling the resulting
+executable.
+
+To change between the static string implementation and the dynamic
+string implementation, change the relevant #include statement in
+LinkList.c and recompile.
+
+Testing was accomplished with input redirection through the shell.
+This is not a perfect method as the overhead introduced by the shell
+is included in the time measurements. However, since the overhead is
+constant and CPU time was taken instead of real time to remove any
+variance caused by background processes, the resulting measurements
+should be valid enough to illustrate a performance difference.
+
+To perform the time test, compile the editor with the desired string
+type and time the execution of the shell script "timethis.sh" using
+the "time" function provided by your shell of choice or GNU time if
+such a function is not provided. For the measurements used in the
+report, the default time function provided in zsh was used.
+
+IMPORTANT: Ensure that TimeTest.txt and the compiled executable are
+located in the same directory as timethis.sh
+
+	ex) time timethis.sh <name_of_executable>
