@@ -1,0 +1,9 @@
+-Designed and implemented Scala version of the editor
+-Researched the implementation of Strings in Java and Scala
+-Wrote 60% of the introduction of our report
+-Wrote the abstract of our report
+-Contributed to the Methods/Algorithms portion of our report
+-Ran tests on the usage of the text editor in Scala, as well as interpreted
+ that information and drew conclusions
+-Wrote the future work portion of our paper
+-Contributed a portion to our conclusion section.
