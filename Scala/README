@@ -1,0 +1,55 @@
+*****************************
+Nicholas Calkins
+CS 4080
+May 7th, 2020
+Professor Talari
+*****************************
+
+This is the source code for ed written in Scala. It is also the source code of
+my implementation of a buffer of mutable static length strings, mutable dynamic
+length strings.
+
+****************************
+WHY ARE THERE SO MANY FILES?
+****************************
+
+I'm glad you asked! Welcome to the wonderful world of Scala! Because Scala is 
+designed to run alongside Java, Scala translates its objects to Java Virtual 
+Machine constructs. Although it's written in Scala, the object is compiled into
+something recognizable by Java. These extra files are like static commands that
+are recognizable to Java so Java can freely call it like any other static
+command in the Java library. In my searching, I found nothing that could be
+done about this terrible feature. It looks terrible and I apologize that I could
+not find a solution.
+
+*******************
+RUNNING THE PROGRAM
+*******************
+
+To run, type either:
+
+scala DynamicBufferCommands
+
+or
+
+scala StaticBufferCommands
+
+which will run my implementation of ed with either a buffer that houses mutable
+dynamic length strings or mutable static length strings, respectively.
+
+*****************
+RUNNING THE TESTS
+*****************
+
+To run the tests, type either:
+
+python testDynamicAppendWriteMemoryTime.py
+
+or
+
+python testStaticAppendWriteMemoryTime.py
+
+which will run the program 32 times, each time it reads the content of
+bigbible_append_and_write.txt as input to the program. The time taken to run
+the program will be reported by Python, and the amount of memory used by the
+program will be reported by the respective buffers. 
