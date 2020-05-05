@@ -8,8 +8,8 @@ This is the source code for the C implementation of the text editor.
 "textedit.c" contains the main driver for the program. To build the
 program, compile that file.
 
-  ex) If compiling with clang, run
-        cc textedit.c
+ 	ex) If compiling with clang, run
+        	cc textedit.c
 
 Running the program is now the simple matter of calling the resulting
 executable.
