@@ -387,10 +387,10 @@ class DynamicBufferCommands() {
 
   def processCommand() {
     
-    if (!isValidAddress)
+    if (!isValidAddress || !isCommand(getCom))
       println("?")
 
-    if (com == 'a')
+    else if (com == 'a')
       append(getAd(1))
     
     else if (com == 'p')

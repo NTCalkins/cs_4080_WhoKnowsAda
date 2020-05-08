@@ -392,7 +392,7 @@ class StaticBufferCommands() {
 
   def processCommand() {
 
-    if (!isValidAddress)
+    if (!isValidAddress || !isCommand(getCom))
       println("?")
     
     else if (com == 'a')
