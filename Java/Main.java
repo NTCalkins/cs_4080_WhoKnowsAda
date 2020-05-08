@@ -26,7 +26,7 @@ public class Main implements DynamicLinkedListImplementation, StaticLinkedListIm
         String input = "";
         int currentAddress = 0;
         int line1 = 0;
-        int line2 = 3;
+        int line2 = 0;
         int line3 = 0;
 
         Stopwatch stopwatch = new Stopwatch();

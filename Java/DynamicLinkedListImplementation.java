@@ -1,6 +1,10 @@
 interface DynamicLinkedListImplementation {
     public class DynamicDoubleLinkedList{
         public DynamicNode head;
+
+		public DynamicDoubleLinkedList(){
+			head = new DynamicNode();
+		}
     }
 
     public class DynamicNode{
@@ -17,6 +21,12 @@ interface DynamicLinkedListImplementation {
             prev = null;
             next = null;
         }
+
+		public DynamicNode(){
+			sb = new StringBuilder(capacity);
+			prev = null;
+			next = null;
+		}
 
         public void copy(String input){
             sb = new StringBuilder(input);
