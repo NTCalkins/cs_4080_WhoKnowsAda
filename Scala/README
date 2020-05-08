@@ -18,9 +18,9 @@ designed to run alongside Java, Scala translates its objects to Java Virtual
 Machine constructs. Although it's written in Scala, the object is compiled into
 something recognizable by Java. These extra files are like static commands that
 are recognizable to Java so Java can freely call it like any other static
-command in the Java library. In my searching, I found nothing that could be
-done about this terrible feature. It looks terrible and I apologize that I could
-not find a solution.
+command in the Java library. In Java this can typically be remedied by compressing
+everything into a jar file but when I tried this in scala, it was too complex 
+given my inexperience in the language.
 
 *******************
 RUNNING THE PROGRAM
