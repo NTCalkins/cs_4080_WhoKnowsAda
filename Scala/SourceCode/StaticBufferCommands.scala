@@ -384,9 +384,18 @@ class StaticBufferCommands() {
     println("Total Memory: " + totalMemory / mb + " MB")
   }
 
+  def isValidAddress() : Boolean = {
+    if (getAd(1) < -1 || getAd(2) > buff.getTail()+1)
+      return false
+    return true
+  }
+
   def processCommand() {
 
-    if (com == 'a')
+    if (!isValidAddress)
+      println("?")
+    
+    else if (com == 'a')
       append(getAd(1))
     
     else if (com == 'p')

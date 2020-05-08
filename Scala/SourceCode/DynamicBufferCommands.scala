@@ -379,7 +379,16 @@ class DynamicBufferCommands() {
     println("Total Memory: " + totalMemory / mb + " MB")
   }
 
+  def isValidAddress() : Boolean = {
+    if (getAd(1) < -1 || getAd(2) > buff.getTail()+1)
+      return false
+    return true
+  }
+
   def processCommand() {
+    
+    if (!isValidAddress)
+      println("?")
 
     if (com == 'a')
       append(getAd(1))
