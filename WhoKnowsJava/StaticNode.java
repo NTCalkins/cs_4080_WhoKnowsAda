@@ -1,16 +1,16 @@
-import java.lang.StringBuilder
+import java.lang.StringBuilder;
 
-public class StaticNode implements Node
+public class StaticNode extends Node
 {
-	private static const int MAX_CAPACITY;
+	private static final int MAX_CAPACITY = 1024;
 	private StringBuilder data;
 
-	public DynamicNode()
+	public StaticNode()
 	{
 		data = new StringBuilder(MAX_CAPACITY);
 	}
 
-	public DynamicNode(String s)
+	public StaticNode(String s)
 	{
 		if (s.length() > MAX_CAPACITY)
 			s = s.substring(0, MAX_CAPACITY);

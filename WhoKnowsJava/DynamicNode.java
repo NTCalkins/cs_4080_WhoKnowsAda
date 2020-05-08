@@ -1,8 +1,8 @@
-import java.lang.StringBuilder
+import java.lang.StringBuilder;
 
-public class DynamicNode implements Node
+public class DynamicNode extends Node
 {
-	private static const int INITIAL_CAPACITY = 8;
+	private static final int INITIAL_CAPACITY = 8;
 	private StringBuilder data;
 
 	public DynamicNode()
