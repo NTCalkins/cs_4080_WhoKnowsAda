@@ -28,11 +28,11 @@ RUNNING THE PROGRAM
 
 To run, type either:
 
-scala DynamicBufferCommands
+scala DBC.jar
 
 or
 
-scala StaticBufferCommands
+scala SBC.jar
 
 which will run my implementation of ed with either a buffer that houses mutable
 dynamic length strings or mutable static length strings, respectively.
