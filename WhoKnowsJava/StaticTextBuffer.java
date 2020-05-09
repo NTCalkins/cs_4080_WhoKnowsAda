@@ -55,6 +55,12 @@ public class StaticTextBuffer
         return currAddr;
     }
 
+    public void setAddr(int n)
+    {
+        if (n >= 0 && n <= text.size())
+            currAddr = n;
+    }
+
     public void append(int line, LinkedList<StaticNode> buff)
     {
         assert line >= 0 && line <= text.size();
@@ -100,7 +106,10 @@ public class StaticTextBuffer
         assert line3 < line1 || line3 > line2;
         LinkedList<StaticNode> temp = new LinkedList<StaticNode>();
         for (int i = line1 - 1; i < line2; ++i)
-            temp.add(text.get(i));
+        {
+            StaticNode tempNode = new StaticNode(text.get(i).get());
+            temp.add(tempNode);
+        }
         text.addAll(line3, temp);
         currAddr = line3 + temp.size();
         changesMade = true;
@@ -151,6 +160,7 @@ public class StaticTextBuffer
         for (int i = line1 - 1; i < line2; ++i)
             outFile.write(text.get(i).get() + "\n");
         outFile.close();
+        changesMade = false;
     }
 
     public void edit(String file) throws IOException
@@ -164,6 +174,7 @@ public class StaticTextBuffer
             text.add(temp);
         }
         inFile.close();
+        changesMade = false;
     }
 
     public boolean changes()

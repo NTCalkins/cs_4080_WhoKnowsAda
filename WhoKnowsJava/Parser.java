@@ -1,5 +1,13 @@
 public class Parser
 {
+    private class MutableInt /* Wrapper to allow passing integer by reference */
+    {
+        public Integer value;
+        public MutableInt()
+        {
+            value = 0;
+        }
+    }
     /* All members are public for efficiency */
     public static final int INVALID_ADDR = -1;
     public static final char INVALID_CMD = '?';
@@ -53,60 +61,59 @@ public class Parser
 
     private int atoi(String s) /* Implementation of atoi from C */
     {
-        int offset = 1;
         int radix = 10;
         int result = 0;
         int i = 0;
         while (i < s.length() && Character.isDigit(s.charAt(i)))
         {
-            result *= 10;
+            result *= radix;
             result += Character.getNumericValue(s.charAt(i));
             ++i;
         }
         return result;
     }
 
-    public int interpretSpecial(int currAddr, int buffSize, String s, Integer offset)
+    public int interpretSpecial(int currAddr, int buffSize, String s, MutableInt offset)
     {
         int retVal;
         switch (s.charAt(0))
         {
         case '.':
-            offset = 1;
+            offset.value = 1;
             return currAddr;
         case '$':
-            offset = 1;
+            offset.value = 1;
             return buffSize;
         case '+':
-            if (Character.isDigit(s.charAt(1)))
+            if (s.length() > 1 && Character.isDigit(s.charAt(1)))
             {
                 retVal = currAddr + atoi(s.substring(1));
-                offset = 2;
-                while (Character.isDigit(s.charAt(offset)))
-                    ++offset;
+                offset.value = 2;
+                while (offset.value < s.length() && Character.isDigit(s.charAt(offset.value)))
+                    ++offset.value;
                 return retVal;
             }
             else
             {
-                offset = 1;
+                offset.value = 1;
                 return currAddr + 1;
             }
         case '-':
-            if (Character.isDigit(s.charAt(1)))
+            if (s.length() > 1 && Character.isDigit(s.charAt(1)))
             {
                 retVal = currAddr - atoi(s.substring(1));
-                offset = 2;
-                while (Character.isDigit(s.charAt(offset)))
-                    ++offset;
+                offset.value = 2;
+                while (offset.value < s.length() && Character.isDigit(s.charAt(offset.value)))
+                    ++offset.value;
                 return retVal;
             }
             else
             {
-                offset = 1;
+                offset.value = 1;
                 return currAddr - 1;
             }
         default:
-            offset = 0;
+            offset.value = 0;
             return INVALID_ADDR;
         }
     }
@@ -114,7 +121,7 @@ public class Parser
     public void parse(int currentAddress, int buffSize, String input)
     { /* Parser implementation translated from that of the C version */
         int pos = 0;
-        Integer temp = 0;
+        MutableInt temp = new MutableInt();
         param = "";
         addr1 = addr2 = addr3 = INVALID_ADDR;
         command = INVALID_CMD;
@@ -126,26 +133,29 @@ public class Parser
             {
                 addr2 = INVALID_ADDR; /* Reset address 2 */
                 addr1 = atoi(input.substring(pos)); /* Extract the number from input and store as address 1 */
-                while (Character.isDigit(input.charAt(pos))) /* Move current position past the extracted number */
+                while (pos < input.length() && Character.isDigit(input.charAt(pos))) /* Move current position past the extracted number */
                     ++pos;
-                if (input.charAt(pos) == ',' || input.charAt(pos) == ';') /* A second address is given */
+                if (pos < input.length())
                 {
-                    ++pos;
-                    if (Character.isDigit(input.charAt(pos)))
+                    if (input.charAt(pos) == ',' || input.charAt(pos) == ';') /* A second address is given */
                     {
-                        addr2 = atoi(input.substring(pos)); /* Extract number and store in address 2 */
-                        while (Character.isDigit(input.charAt(pos)))
-                            ++pos;
-                    }
-                    else if (isSpecial(input.charAt(pos))) /* Special character for address 2 */
-                    {
-                        addr2 = interpretSpecial(currentAddress, buffSize, input.substring(pos), temp);
-                        pos += temp;
-                    }
-                    else /* Read input as address 2*/
-                    {
-                        addr2 = addr1;
-                        addr1 = INVALID_ADDR;
+                        ++pos;
+                        if (Character.isDigit(input.charAt(pos)))
+                        {
+                            addr2 = atoi(input.substring(pos)); /* Extract number and store in address 2 */
+                            while (Character.isDigit(input.charAt(pos)))
+                                ++pos;
+                        }
+                        else if (isSpecial(input.charAt(pos))) /* Special character for address 2 */
+                        {
+                            addr2 = interpretSpecial(currentAddress, buffSize, input.substring(pos), temp);
+                            pos += temp.value;
+                        }
+                        else /* Read input as address 2*/
+                        {
+                            addr2 = addr1;
+                            addr1 = INVALID_ADDR;
+                        }
                     }
                 }
             }
@@ -153,26 +163,29 @@ public class Parser
             {
                 addr2 = INVALID_ADDR;
                 addr1 = interpretSpecial(currentAddress, buffSize, input.substring(pos), temp);
-                pos += temp;
-                if (input.charAt(pos) == ',' || input.charAt(pos) == ';') /* A second address is given */
+                pos += temp.value;
+                if (pos < input.length())
                 {
-                    ++pos;
-                    if (Character.isDigit(input.charAt(pos)))
+                    if (input.charAt(pos) == ',' || input.charAt(pos) == ';') /* A second address is given */
                     {
-                        addr2 = atoi(input.substring(pos)); /* Extract number and store in address 2 */
-                        while (Character.isDigit(input.charAt(pos)))
-                            ++pos;
-                    }
-                    else if (isSpecial(input.charAt(pos))) /* Special character for address 2 */
-                    {
-                        addr2 = interpretSpecial(currentAddress, buffSize, input.substring(pos), temp);
-                        pos += temp;
-                    }
-                    else /* Read input as address 2*/
-                    {
-                        addr2 = addr1;
-                        addr1 = INVALID_ADDR;
-                    }
+                        ++pos;
+                        if (Character.isDigit(input.charAt(pos)))
+                        {
+                            addr2 = atoi(input.substring(pos)); /* Extract number and store in address 2 */
+                            while (Character.isDigit(input.charAt(pos)))
+                                ++pos;
+                        }
+                        else if (isSpecial(input.charAt(pos))) /* Special character for address 2 */
+                        {
+                            addr2 = interpretSpecial(currentAddress, buffSize, input.substring(pos), temp);
+                            pos += temp.value;
+                        }
+                        else /* Read input as address 2*/
+                        {
+                            addr2 = addr1;
+                            addr1 = INVALID_ADDR;
+                        }
+                    }    
                 }
             }
             /* Special cases for ',' and ';' */
@@ -180,16 +193,21 @@ public class Parser
             {
                 addr1 = 1;
                 ++pos;
-                if (Character.isDigit(input.charAt(pos))) /* address 2 is numerically defined */
+                if (pos < input.length())
                 {
-                    addr2 = atoi(input.substring(pos));
-                    while (Character.isDigit(input.charAt(pos)))
-                        ++pos;
-                }
-                else if (isSpecial(input.charAt(pos))) /* address 2 is defined by a special character */
-                {
-                    addr2 = interpretSpecial(currentAddress, buffSize, input.substring(pos), temp);
-                    pos += temp;
+                    if (Character.isDigit(input.charAt(pos))) /* address 2 is numerically defined */
+                    {
+                        addr2 = atoi(input.substring(pos));
+                        while (Character.isDigit(input.charAt(pos)))
+                            ++pos;
+                    }
+                    else if (isSpecial(input.charAt(pos))) /* address 2 is defined by a special character */
+                    {
+                        addr2 = interpretSpecial(currentAddress, buffSize, input.substring(pos), temp);
+                        pos += temp.value;
+                    }
+                    else
+                        addr2 = buffSize;
                 }
                 else
                     addr2 = buffSize;
@@ -198,19 +216,23 @@ public class Parser
             {
                 addr1 = currentAddress;
                 ++pos;
-                if (Character.isDigit(input.charAt(pos))) /* address 2 is numerically defined */
+                if (pos < input.length())
                 {
-                    addr2 = atoi(input.substring(pos));
-                    while (Character.isDigit(input.charAt(pos)))
-                        ++pos;
+                    if (Character.isDigit(input.charAt(pos))) /* address 2 is numerically defined */
+                    {
+                        addr2 = atoi(input.substring(pos));
+                        while (Character.isDigit(input.charAt(pos)))
+                            ++pos;
+                    }
+                    else if (isSpecial(input.charAt(pos))) /* address 2 is defined by a special character */
+                    {
+                        addr2 = interpretSpecial(currentAddress, buffSize, input.substring(pos), temp);
+                        pos += temp.value;
+                    }
+                    else
+                        addr2 = buffSize;
                 }
-                else if (isSpecial(input.charAt(pos))) /* address 2 is defined by a special character */
-                {
-                    addr2 = interpretSpecial(currentAddress, buffSize, input.substring(pos), temp);
-                    pos += temp;
-                }
-                else
-                    addr2 = buffSize;
+                addr2 = buffSize;
             }
             else if (isCommand(input.charAt(pos))) /* Current token is a command */
             {
