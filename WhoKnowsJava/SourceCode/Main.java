@@ -1,3 +1,13 @@
+/* Harvey Lin
+ * May 15th, 2020
+ * CS 4080
+ * Professor Rahul Talari
+ *
+ * This is the main driver for ed in Java, written by Harvey Lin
+ *
+ */
+
+
 import java.util.Scanner;
 import java.util.LinkedList;
 import java.io.IOException;
@@ -8,27 +18,39 @@ public class Main
       To swap between static/dynamic strings,
       uncomment one of the following definitions
       ================================================*/
-    static private void inputMode(String input, LinkedList<DynamicNode> buff) /* Enter input mode for dynamic buffer */
-    {
-        Scanner scan = new Scanner(System.in);
-        input = scan.nextLine();
-        while (!input.equals("."))
-        {
-            buff.add(new DynamicNode(input));
-            input = scan.nextLine();
-        }
-    }
+    //static private void inputMode(String input, LinkedList<DynamicNode> buff) /* Enter input mode for dynamic buffer */
+    //{
+    //    Scanner scan = new Scanner(System.in);
+    //    input = scan.nextLine();
+    //    while (!input.equals("."))
+    //    {
+    //        buff.add(new DynamicNode(input));
+    //        input = scan.nextLine();
+    //    }
+    //}
 
-    // static private void inputMode(String input, LinkedList<StaticNode> buff) /* Enter input mode for static buffer */
-    // {
-    //     Scanner scan = new Scanner(System.in);
-    //     input = scan.nextLine();
-    //     while (!input.equals("."))
-    //     {
-    //         buff.add(new DynamicNode(input));
-    //         input = scan.nextLine();
-    //     }
-    // }
+     static private void inputMode(String input, LinkedList<StaticNode> buff) /* Enter input mode for static buffer */
+     {
+         Scanner scan = new Scanner(System.in);
+         input = scan.nextLine();
+	 while (!input.equals(".")) {
+		buff.add(new StaticNode(input));
+		input = scan.nextLine();
+	 }
+     }
+    
+    static private void getMemoryUsage() {
+	int mb = 1024*1024;
+	Runtime runtime = Runtime.getRuntime();
+	long totalMemory = runtime.totalMemory();
+	long freeMemory = runtime.freeMemory();
+	long usedMemory = totalMemory - freeMemory;
+
+	System.out.println();
+	System.out.println("Used memory: " + usedMemory / mb + " MB");
+	System.out.println("Total memory: " + totalMemory / mb + " MB");
+		
+    }
     
     public static void main(String[] args) throws IOException
     { /* Main driver for editor. Does not support command suffixing */
@@ -42,11 +64,11 @@ public class Main
           comment/uncomment the following.
           ================================================*/
         /* Using dynamic strings for text buffer */
-        DynamicTextBuffer textBuffer = new DynamicTextBuffer();
-        LinkedList<DynamicNode> inputBuffer = new LinkedList<DynamicNode>();
+        //DynamicTextBuffer textBuffer = new DynamicTextBuffer();
+        //LinkedList<DynamicNode> inputBuffer = new LinkedList<DynamicNode>();
         /* Using static strings for text buffer */
-        // StaticTextBuffer textBuffer = new StaticTextBuffer();
-        // LinkedList<StaticNode> inputBuffer = new LinkedList<StaticNode>();
+         StaticTextBuffer textBuffer = new StaticTextBuffer();
+         LinkedList<StaticNode> inputBuffer = new LinkedList<StaticNode>();
         if (args.length > 1)
         {
             System.out.println("Error: Too many arguments.");
@@ -243,5 +265,6 @@ public class Main
                     System.out.println("Error: Unknown command.");
                 }
         }
+	getMemoryUsage();
     }
 }
