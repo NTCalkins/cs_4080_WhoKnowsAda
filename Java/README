@@ -1,0 +1,17 @@
+This is the Java code for our group's implementation of ed.
+
+***********
+HOW TO USE?
+***********
+
+invoke the program from command line using:
+
+java -jar DBC.jar
+
+or
+
+java -jar SBC.jar
+
+depending on if you want to use the dynamic length string buffer implementation
+or the static length string buffer implementation. Otherwise, use it exactly
+as if it were the GNU text editor, ed.
