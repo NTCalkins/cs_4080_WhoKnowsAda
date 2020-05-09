@@ -1,4 +1,5 @@
-public class Parser {
+public class Parser
+{
     public static final int INVALID_ADDR = -1;
     public static final char INVALID_CMD = '?';
     private int addr1;
@@ -9,7 +10,7 @@ public class Parser {
 
     public Parser()
     {
-        line1 = line2 = line3 = INVALID_ADDR;
+        addr1 = addr2 = addr3 = INVALID_ADDR;
         command = INVALID_CMD;
     }
     
@@ -49,7 +50,7 @@ public class Parser {
         }
     }
 
-    private atoi(String s) /* Implementation of atoi from C */
+    private int atoi(String s) /* Implementation of atoi from C */
     {
         int offset = 1;
         int radix = 10;
@@ -131,10 +132,10 @@ public class Parser {
                     if (Character.isDigit(input.charAt(pos)))
                     {
                         addr2 = atoi(input.substring(pos)); /* Extract number and store in address 2 */
-                        while (isdigit(input.charAt(pos)))
+                        while (Character.isDigit(input.charAt(pos)))
                             ++pos;
                     }
-                    else if (isSpecial(input[pos])) /* Special character for address 2 */
+                    else if (isSpecial(input.charAt(pos))) /* Special character for address 2 */
                     {
                         addr2 = interpretSpecial(currentAddress, buffSize, input.substring(pos), temp);
                         pos += temp;
@@ -157,10 +158,10 @@ public class Parser {
                     if (Character.isDigit(input.charAt(pos)))
                     {
                         addr2 = atoi(input.substring(pos)); /* Extract number and store in address 2 */
-                        while (isdigit(input.charAt(pos)))
+                        while (Character.isDigit(input.charAt(pos)))
                             ++pos;
                     }
-                    else if (isSpecial(input[pos])) /* Special character for address 2 */
+                    else if (isSpecial(input.charAt(pos))) /* Special character for address 2 */
                     {
                         addr2 = interpretSpecial(currentAddress, buffSize, input.substring(pos), temp);
                         pos += temp;
@@ -172,58 +173,58 @@ public class Parser {
                     }
                 }
             }
-        }
-        /* Special cases for ',' and ';' */
-        else if (input.charAt(pos) == ',') /* First through specified or last line of the buffer */
-        {
-            addr1 = 1;
-            ++pos;
-            if (Character.isDigit(input.charAt(pos))) /* address 2 is numerically defined */
+            /* Special cases for ',' and ';' */
+            else if (input.charAt(pos) == ',') /* First through specified or last line of the buffer */
             {
-                addr2 = atoi(input.substring(pos));
-                while (Character.isDigit(input.charAt(pos)))
-                    ++pos;
-            }
-            else if (isSpecial(input.charAt(pos))) /* address 2 is defined by a special character */
-            {
-                addr2 = interpretSpecial(currentAddress, buffSize, input.substring(pos), temp);
-                pos += temp;
-            }
-            else
-                addr2 = buffSize;
-        }
-        else if (input.charAt(pos) == ';') /* Current through specified or last line of the buffer */
-        {
-            addr1 = currentAddress;
-            ++pos;
-            if (Character.isDigit(input.charAt(pos))) /* address 2 is numerically defined */
-            {
-                addr2 = atoi(input.substring(pos));
-                while (Character.isDigit(input.charAt(pos)))
-                    ++pos;
-            }
-            else if (isSpecial(input.charAt(pos))) /* address 2 is defined by a special character */
-            {
-                addr2 = interpretSpecial(currentAddress, buffSize, input.substring(pos), temp);
-                pos += temp;
-            }
-            else
-                addr2 = buffSize;
-        }
-        else if (isCommand(input.charAt(pos))) /* Current token is a command */
-        {
-            command = input.charAt(pos);
-            ++pos;
-            while (pos < input.length() && Character.isWhitespace(input.charAt(pos))) /* Search for param */
+                addr1 = 1;
                 ++pos;
-            if (pos < input.length())
-                param = input.substring(pos);
-            return;
-        }
-        else /* Invalid character encountered */
-        {
-            System.out.println("Warning: Unrecognized character inputted.");
-            ++pos;
+                if (Character.isDigit(input.charAt(pos))) /* address 2 is numerically defined */
+                {
+                    addr2 = atoi(input.substring(pos));
+                    while (Character.isDigit(input.charAt(pos)))
+                        ++pos;
+                }
+                else if (isSpecial(input.charAt(pos))) /* address 2 is defined by a special character */
+                {
+                    addr2 = interpretSpecial(currentAddress, buffSize, input.substring(pos), temp);
+                    pos += temp;
+                }
+                else
+                    addr2 = buffSize;
+            }
+            else if (input.charAt(pos) == ';') /* Current through specified or last line of the buffer */
+            {
+                addr1 = currentAddress;
+                ++pos;
+                if (Character.isDigit(input.charAt(pos))) /* address 2 is numerically defined */
+                {
+                    addr2 = atoi(input.substring(pos));
+                    while (Character.isDigit(input.charAt(pos)))
+                        ++pos;
+                }
+                else if (isSpecial(input.charAt(pos))) /* address 2 is defined by a special character */
+                {
+                    addr2 = interpretSpecial(currentAddress, buffSize, input.substring(pos), temp);
+                    pos += temp;
+                }
+                else
+                    addr2 = buffSize;
+            }
+            else if (isCommand(input.charAt(pos))) /* Current token is a command */
+            {
+                command = input.charAt(pos);
+                ++pos;
+                while (pos < input.length() && Character.isWhitespace(input.charAt(pos))) /* Search for param */
+                    ++pos;
+                if (pos < input.length())
+                    param = input.substring(pos);
+                return;
+            }
+            else /* Invalid character encountered */
+            {
+                System.out.println("Warning: Unrecognized character inputted.");
+                ++pos;
+            }
         }
     }
     public int getLine1()
