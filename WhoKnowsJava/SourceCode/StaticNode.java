@@ -12,18 +12,20 @@ public class StaticNode extends Node
 
     public StaticNode(String s)
     {
+        String temp = s;
         if (s.length() > MAX_CAPACITY)
-            s = s.substring(0, MAX_CAPACITY);
+            temp = s.substring(0, MAX_CAPACITY);
         data = new StringBuilder(MAX_CAPACITY);
-        data.append(s);
+        data.append(temp);
     }
 
     public void copy(String s)
     {
+        String temp = s;
         if (s.length() > MAX_CAPACITY)
-            s = s.substring(0, MAX_CAPACITY);
+            temp = s.substring(0, MAX_CAPACITY);
         data.delete(0, data.length());
-        data.append(s);
+        data.append(temp);
     }
 
     public void append(String s)
