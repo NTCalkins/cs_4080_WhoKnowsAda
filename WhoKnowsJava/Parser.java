@@ -1,12 +1,13 @@
 public class Parser
 {
+    /* All members are public for efficiency */
     public static final int INVALID_ADDR = -1;
     public static final char INVALID_CMD = '?';
-    private int addr1;
-    private int addr2;
-    private int addr3;
-    private char command;
-    private String param;
+    public int addr1;
+    public int addr2;
+    public int addr3;
+    public char command;
+    public String param;
 
     public Parser()
     {
@@ -219,6 +220,14 @@ public class Parser
                     ++pos;
                 if (pos < input.length())
                     param = input.substring(pos);
+                if (param.length() == 0)
+                    addr3 = currentAddress;
+                else if (isSpecial(param.charAt(0)))
+                    addr3 = interpretSpecial(currentAddress, buffSize, param, temp);
+                else if (Character.isDigit(param.charAt(0)))
+                    addr3 = atoi(param);
+                else
+                    addr3 = INVALID_ADDR;
                 return;
             }
             else /* Invalid character encountered */
@@ -227,24 +236,5 @@ public class Parser
                 ++pos;
             }
         }
-    }
-    public int getLine1()
-    {
-        return addr1;
-    }
-
-    public int getLine2()
-    {
-        return addr2;
-    }
-
-    public int getLine3()
-    {
-        return addr3;
-    }
-
-    public char getCommand()
-    {
-        return command;
     }
 }

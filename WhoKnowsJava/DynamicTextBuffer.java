@@ -111,11 +111,16 @@ public class DynamicTextBuffer
         assert line2 >= line1 && line1 > 0 && line2 <= text.size() && line3 <= text.size();
         assert line3 < line1 || line3 > line2;
         this.transfer(line1, line2, line3);
-        this.delete(line1, line2);
         if (line3 > line2)
+        {
+            this.delete(line1, line2);
             currAddr = line3;
+        }
         else
+        {
+            this.delete(line1 + (line2 - line1 + 1), line2 + (line2 - line1 + 1));
             currAddr = line3 + (line2 - line1 + 1);
+        }
         changesMade = true;
     }
 
@@ -159,5 +164,10 @@ public class DynamicTextBuffer
             text.add(temp);
         }
         inFile.close();
+    }
+
+    public boolean changes()
+    {
+        return changesMade;
     }
 }
