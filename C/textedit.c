@@ -288,8 +288,10 @@ void TextBuffer_transfer(struct TextBuffer *self, unsigned int line1, unsigned i
 	pos2 = pos2->prev;
     }
     /* Update position */
-    for (unsigned int i = 0; i < transSize; ++i)
-	self->text.next(&(self->text));
+    if (line3 < line1)
+		self->text.move(&(self->text), line3 + (line2 - line1 + 1));
+	else
+		self->text.move(&(self->text), line3);
     self->changesMade = true;
 }
 
