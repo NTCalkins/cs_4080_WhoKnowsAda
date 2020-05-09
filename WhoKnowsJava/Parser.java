@@ -60,6 +60,7 @@ public class Parser
         {
             result *= 10;
             result += Character.getNumericValue(s.charAt(i));
+            ++i;
         }
         return result;
     }
