@@ -50,6 +50,11 @@ public class DynamicTextBuffer
         return text.size();
     }
 
+    public int getAddr()
+    {
+        return currAddr;
+    }
+
     public void append(int line, LinkedList<DynamicNode> buff)
     {
         assert line >= 0 && line <= text.size();

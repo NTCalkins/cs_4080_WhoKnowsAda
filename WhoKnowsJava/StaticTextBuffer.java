@@ -50,6 +50,11 @@ public class StaticTextBuffer
         return text.size();
     }
 
+    public int getAddr()
+    {
+        return currAddr;
+    }
+
     public void append(int line, LinkedList<StaticNode> buff)
     {
         assert line >= 0 && line <= text.size();
