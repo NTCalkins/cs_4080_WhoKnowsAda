@@ -289,9 +289,9 @@ void TextBuffer_transfer(struct TextBuffer *self, unsigned int line1, unsigned i
     }
     /* Update position */
     if (line3 < line1)
-		self->text.move(&(self->text), line3 + (line2 - line1 + 1));
-	else
-		self->text.move(&(self->text), line3);
+	self->text.move(&(self->text), line3 + (line2 - line1 + 1));
+    else
+	self->text.move(&(self->text), line3);
     self->changesMade = true;
 }
 
