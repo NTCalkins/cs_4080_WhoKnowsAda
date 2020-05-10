@@ -1,3 +1,0 @@
-- Designed and implemented C# version of the editor
-- Performed research on implementation of strings in C#
-- Contributed testing data, results, and conclusions regarding the C# implementation of the editor to the report
