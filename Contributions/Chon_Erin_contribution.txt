@@ -1,3 +1,5 @@
 -Wrote about implementing static length strings in Java
 -Wrote about implementing dynamic length strings in Java
+-Implemented static length mutable strings in Java
+-Implemented dynamic length mutabl strings in Java
 -Worked on the preliminary Java implementation of the text editor ed
